@@ -1,0 +1,38 @@
+server:
+  port: 8090
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: "http://localhost:9090/realms/gestion-rh"
+          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+spring:
+  application:
+    name: hello-service
+
+  datasource:
+    url: jdbc:postgresql://ms_pg_sql:5432/postgres
+    username: ahmed
+    password: ahmed
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+
+
+
+jwt:
+  auth:
+    converter:
+      resource-id: grh
+      principle-attribute: preferred_username
