@@ -1,0 +1,10 @@
+package com.example.evaluation_service.DTO;
+
+import lombok.Data;
+
+@Data
+public class Employee {
+    private String matricule;
+    private String nom;
+    private String prenom;
+}
