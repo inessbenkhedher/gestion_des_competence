@@ -6,7 +6,7 @@
             <img src="assets/images/logo.png" alt="">
           </div>
           <h1 class="mb-3 text-18">Sign In</h1>
-          <form [formGroup]="signinForm" (ngSubmit)="signin()">
+          <form [formGroup]="signinForm" >
             <div class="form-group">
               <label for="email">Email address</label>
               <input id="email" class="form-control form-control-rounded" formControlName="email" type="email">

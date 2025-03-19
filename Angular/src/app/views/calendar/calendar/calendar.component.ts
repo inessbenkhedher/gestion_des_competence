@@ -12,7 +12,6 @@ import { CalendarAppService } from '../calendar-app.service';
 import { CalendarFormDialogComponent } from '../calendar-form-dialog/calendar-form-dialog.component';
 import { Utils } from 'src/app/shared/utils';
 import { SharedAnimations } from 'src/app/shared/animations/shared-animations';
-import { HelloService } from 'src/app/shared/services/hello/hello.service';
 
 @Component({
 	selector: 'app-calendar',
@@ -31,7 +30,6 @@ export class CalendarComponent implements OnInit {
 
 	constructor(
 		private modalService: NgbModal,
-		private helloService:HelloService,
 		private calendarService: CalendarAppService,
 	) {
 		this.actions = [{
@@ -143,17 +141,6 @@ export class CalendarComponent implements OnInit {
 				console.log(e);
 			});
 	}
-
-	getHello(){
-		this.helloService.checkHello().subscribe((res)=>{
-			console.log('Hello Response:',res);
-		
-		},
-		error =>{
-			console.log('Hello Error:',error)
-		}
-	)
-	  }
 
 
 	public dayClicked({ date, events }: { date: Date, events: CalendarEvent[] }): void {

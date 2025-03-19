@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { echartStyles } from 'src/app/shared/echart-styles';
-import { HelloService } from 'src/app/shared/services/hello/hello.service';
 import { ProductService } from 'src/app/shared/services/product.service';
 
 @Component({
@@ -14,13 +13,10 @@ export class DashboardV4Component implements OnInit {
 	products$: any;
 
 	constructor(
-		private productService: ProductService,
-		private helloService:HelloService
+		private productService: ProductService
 	) { }
 
 	ngOnInit() {
-    
-		this.testInterceptor();
 		this.chartLineSmall1 = {
 			...echartStyles.defaultOptions, ...{
 				grid: echartStyles.gridAlignLeft,
@@ -81,27 +77,7 @@ export class DashboardV4Component implements OnInit {
 			}
 		};
 		this.products$ = this.productService.getProducts();
-		this.getHello();
+
 	}
 
-	testInterceptor() {
-		this.helloService.checkInterceptor().subscribe(
-		  response => {
-			console.log('API Response:', response);
-		  },
-		  error => {
-			console.error('Error:', error);
-		  }
-		);
-	  }
-
-	  getHello(){
-		this.helloService.checkHello().subscribe((res)=>{
-			console.log('Hello Response:',res);		
-		},
-		error =>{
-			console.log('Hello Error:',error)
-		}
-	)
-	  }
 }

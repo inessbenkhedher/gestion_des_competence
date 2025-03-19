@@ -7,11 +7,8 @@ import { AppComponent } from './app.component';
 import { SharedModule } from './shared/shared.module';
 import { InMemoryWebApiModule } from 'angular-in-memory-web-api';
 import { InMemoryDataService } from './shared/inmemory-db/inmemory-db.service';
-import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
-import { KeycloakService } from './shared/services/keycloak/keycloak.service';
-import { HttpTokenInterceptor } from './shared/services/interceptor/http-token-interceptor.service';
-import { HelloService } from './shared/services/hello/hello.service';
-
+import { HttpClientModule } from '@angular/common/http';
+import { KeycloakService } from './Services/keycloak/keycloak.service';
 
 export function kcFactory(kcService: KeycloakService) {
   return () => kcService.init();
@@ -29,20 +26,14 @@ export function kcFactory(kcService: KeycloakService) {
     InMemoryWebApiModule.forRoot(InMemoryDataService, { passThruUnknownUrl: true }),
     AppRoutingModule
   ],
-  providers: [HttpClient,
+  providers: [
     {
-      provide:APP_INITIALIZER,
+      provide: APP_INITIALIZER,
       deps: [KeycloakService],
       useFactory: kcFactory,
-      multi:true
-  },
-  {
-    provide: HTTP_INTERCEPTORS,
-     useClass: HttpTokenInterceptor,
-      multi: true 
-  }
-
-],
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

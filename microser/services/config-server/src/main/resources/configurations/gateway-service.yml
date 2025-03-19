@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 6060
 
 spring:
   cloud:
@@ -17,3 +17,9 @@ spring:
           uri: lb://EVALUATION-SERVICE
           predicates:
             - Path=/evaluation/**
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: "http://localhost:9090/realms/gestion-competence"
