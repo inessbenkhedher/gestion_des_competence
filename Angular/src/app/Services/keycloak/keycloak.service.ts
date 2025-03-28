@@ -8,6 +8,7 @@ import { UserProfile } from './user-profile';
 export class KeycloakService {
 
   private _keycloak :Keycloak  | undefined;
+  token: any;
 
   get keycloak() {
     if (!this._keycloak) {
@@ -34,6 +35,7 @@ export class KeycloakService {
     });
 
     if (authenticated) {
+      this.token = this.keycloak.token || ''; 
       this._profile = (await this.keycloak.loadUserProfile()) as UserProfile;
       this._profile.token = this.keycloak.token || '';
       console.log('token:'+this._profile.token);

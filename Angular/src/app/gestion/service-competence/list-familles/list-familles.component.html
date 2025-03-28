@@ -1,0 +1,74 @@
+<div class="breadcrumb">
+    <h1>Familles</h1>
+    <ul>
+        <li><a href="">Gestion des Compétences</a></li>
+        <li>Familles</li>
+    </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<!-- ADD BUTTON -->
+<div class="row mb-3">
+    <div class="col-md-12 mb-3">
+        <button class="btn btn-primary float-right" (click)="createFamille()">➕ Ajouter une Famille</button>
+    </div>
+</div>
+
+<!-- FAMILLE TABLE -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card o-hidden">
+            <ngx-datatable *ngIf="familles?.length > 0" 
+                class="material fullscreen" 
+                style="box-shadow: none"
+                [style.height]="60*familles.length+60+'px'"
+                [columnMode]="'force'"
+                [headerHeight]="50" 
+                [footerHeight]="0" 
+                [rowHeight]="60" 
+                [scrollbarV]="true" 
+                [scrollbarH]="true" 
+                [rows]="familles">
+                
+                <!-- Title Column -->
+                <ngx-datatable-column name="Titre" prop="title">
+                    <ng-template ngx-datatable-header-template>
+                        Titre
+                    </ng-template>
+                    <ng-template ngx-datatable-cell-template let-row="row">
+                        {{ row.title }}
+                    </ng-template>
+                </ngx-datatable-column>
+
+                <!-- Description Column -->
+                <ngx-datatable-column name="Description" prop="description">
+                    <ng-template ngx-datatable-header-template>
+                        Description
+                    </ng-template>
+                    <ng-template ngx-datatable-cell-template let-row="row">
+                        {{ row.description || 'Aucune description' }}
+                    </ng-template>
+                </ngx-datatable-column>
+
+                <!-- Actions Column -->
+                <ngx-datatable-column name="Actions" [width]="200">
+                    <ng-template ngx-datatable-header-template>
+                        Actions
+                    </ng-template>
+                    <ng-template ngx-datatable-cell-template let-row="row">
+                        <button class="btn btn-outline-warning m-1" (click)="editFamille(row.id)">✏️ Modifier</button>
+                        <button class="btn btn-outline-danger m-1" (click)="deleteFamille(row.id)">
+                            🗑️ Supprimer
+                        </button>
+                    </ng-template>
+                </ngx-datatable-column>
+            </ngx-datatable>
+        </div>
+
+        <!-- Show message when no data -->
+        <div *ngIf="familles?.length === 0" class="text-center p-4">
+            <p class="text-muted">⚠️ Aucune famille trouvée.</p>
+        </div>
+    </div>
+</div>

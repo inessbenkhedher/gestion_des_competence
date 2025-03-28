@@ -1,7 +1,9 @@
 package com.example.competenceservice.Services;
 
 import com.example.competenceservice.Dto.IndicateurDto;
+import com.example.competenceservice.Entites.Famille;
 import com.example.competenceservice.Mappers.IndicateurMapper;
+import com.example.competenceservice.Repository.FamilleRepository;
 import com.example.competenceservice.Services.IServiceIndicateur;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,7 @@ public class ServiceIndicateur implements IServiceIndicateur {
 
     private IndicateurRepository ir;
     private IndicateurMapper mapper;
+    private FamilleRepository fr;
 
     @Override
     public void addindicateur(Indicateur indicateur) {
@@ -32,13 +35,8 @@ public class ServiceIndicateur implements IServiceIndicateur {
     }
 
     @Override
-    public List<IndicateurDto> getAllindicateur() {
-        List<Indicateur> list = ir.findAll();
-        List<IndicateurDto> dtos = new ArrayList<IndicateurDto>();
-        for (Indicateur indicateur : list) {
-            dtos.add(mapper.indidtofromindi(indicateur));
-        }
-        return dtos;
+    public List<Indicateur> getAllindicateur() {
+        return ir.findAll();
     }
 
     @Override
@@ -46,8 +44,26 @@ public class ServiceIndicateur implements IServiceIndicateur {
         ir.deleteById(id);
     }
 
-    @Override
-    public void updateindicateur(Indicateur indicateur) {
-        ir.save(indicateur);
+    public void updateIndicateur(Long id, Indicateur updates) {
+        Indicateur existing = ir.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Indicateur non trouvé"));
+
+        if (updates.getTitle() != null && !updates.getTitle().isEmpty()) {
+            existing.setTitle(updates.getTitle());
+        }
+        if (updates.getDescription() != null && !updates.getDescription().isEmpty()) {
+            existing.setDescription(updates.getDescription());
+        }
+        // ✅ Mettre à jour la famille si différente
+        if (updates.getFamille() != null &&
+                (existing.getFamille() == null || !existing.getFamille().getId().equals(updates.getFamille().getId()))) {
+
+            Famille newFamille = fr.findById(updates.getFamille().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Famille non trouvée"));
+
+            existing.setFamille(newFamille);
+        }
+
+        ir.save(existing);
     }
 }

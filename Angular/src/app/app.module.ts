@@ -1,14 +1,17 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
+import { LayoutsModule } from './gestion/components/layouts/layouts.module';
+import { ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { SharedModule } from './shared/shared.module';
 import { InMemoryWebApiModule } from 'angular-in-memory-web-api';
 import { InMemoryDataService } from './shared/inmemory-db/inmemory-db.service';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { KeycloakService } from './Services/keycloak/keycloak.service';
+import { CompetencesComponent } from './gestion/service-competence/competences/competences.component';
+import { HttpTokenInterceptor } from './Services/interceptor/http-token.interceptor';
 
 export function kcFactory(kcService: KeycloakService) {
   return () => kcService.init();
@@ -16,7 +19,8 @@ export function kcFactory(kcService: KeycloakService) {
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    CompetencesComponent
   ],
   imports: [
     BrowserModule,
@@ -24,7 +28,8 @@ export function kcFactory(kcService: KeycloakService) {
     HttpClientModule,
     BrowserAnimationsModule,
     InMemoryWebApiModule.forRoot(InMemoryDataService, { passThruUnknownUrl: true }),
-    AppRoutingModule
+    AppRoutingModule,
+    ReactiveFormsModule
   ],
   providers: [
     {
@@ -32,6 +37,10 @@ export function kcFactory(kcService: KeycloakService) {
       deps: [KeycloakService],
       useFactory: kcFactory,
       multi: true
+    },{
+      provide:HTTP_INTERCEPTORS,
+      useClass:HttpTokenInterceptor,
+      multi:true
     }
   ],
   bootstrap: [AppComponent]

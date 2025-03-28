@@ -13,10 +13,19 @@ spring:
           uri: lb://COMPETENCE-SERVICE
           predicates:
             - Path=/competences/**
+        - id: competence-service
+          uri: lb://COMPETENCE-SERVICE
+          predicates:
+            - Path=/familles/**
+        - id: competence-service
+          uri: lb://COMPETENCE-SERVICE
+          predicates:
+            - Path=/indicateurs/**
         - id: evaluation-service
           uri: lb://EVALUATION-SERVICE
           predicates:
             - Path=/evaluation/**
+
 
   security:
     oauth2:

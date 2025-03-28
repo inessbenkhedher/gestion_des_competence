@@ -166,6 +166,15 @@ export class NavigationService {
             ]
         },
         {
+            name: 'Ines',
+            description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
+            type: 'dropDown',
+            icon: 'i-Double-Tap',
+            sub: [
+                { icon: 'i-Error-404-Window', name: 'Not found', state: '/others/404', type: 'link' }
+            ]
+        },
+        {
             name: 'Doc',
             type: 'extLink',
             tooltip: 'Documentation',

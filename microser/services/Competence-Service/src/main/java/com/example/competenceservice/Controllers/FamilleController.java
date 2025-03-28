@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/familles")
-
+@CrossOrigin
 @AllArgsConstructor
 public class FamilleController {
 
@@ -39,8 +39,8 @@ public class FamilleController {
         serviceFamille.deletefamille(id);
     }
 
-    @PutMapping
-    public void updateFamille(@RequestBody Famille famille) {
-        serviceFamille.updatefamille(famille);
+    @PutMapping("/{id}")
+    public void updateFamille(@PathVariable Long id,@RequestBody Famille famille) {
+        serviceFamille.updatefamille(id,famille);
     }
 }

@@ -10,5 +10,5 @@ public interface IServiceFamille {
     public Famille getfamille(Long id);
     public List<Famille> getAllFamilles();
     public void deletefamille(Long id);
-    public void updatefamille(Famille famille);
+    public void updatefamille(Long id,Famille famille);
 }

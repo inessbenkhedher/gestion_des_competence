@@ -4,8 +4,9 @@ import { AuthLayoutComponent } from './shared/components/layouts/auth-layout/aut
 import { AuthGaurd } from './shared/services/auth.gaurd';
 import { BlankLayoutComponent } from './shared/components/layouts/blank-layout/blank-layout.component';
 import { AdminLayoutSidebarCompactComponent } from './shared/components/layouts/admin-layout-sidebar-compact/admin-layout-sidebar-compact.component';
+import { AdminLayoutCustomComponent } from './gestion/components/layouts/admin-layout-custom/admin-layout-custom.component';
 
-const adminRoutes: Routes = [
+const templateRoutes: Routes = [
     {
       path: 'dashboard',
       loadChildren: () => import('./views/dashboard/dashboard.module').then(m => m.DashboardModule)
@@ -49,10 +50,20 @@ const adminRoutes: Routes = [
     {
         path: 'icons',
         loadChildren: () => import('./views/icons/icons.module').then(m => m.IconsModule)
-    }
+    },
+  
   ];
 
+
+const adminRoutes: Routes = [
+    
+    {
+      path: 'service-competence',
+      loadChildren: () => import('./gestion/service-competence/service-competence.module').then(m => m.ServiceCompetenceModule)
+    }
+  ];
 const routes: Routes = [
+
   {
     path: '',
     redirectTo: 'dashboard/v1',
@@ -68,6 +79,7 @@ const routes: Routes = [
       }
     ]
   },
+  
   {
     path: '',
     component: BlankLayoutComponent,
@@ -82,8 +94,16 @@ const routes: Routes = [
     path: '',
     component: AdminLayoutSidebarCompactComponent,
     canActivate: [AuthGaurd],
+    children: templateRoutes
+  },
+
+  {
+    path: '',
+    component: AdminLayoutCustomComponent,
+    canActivate: [AuthGaurd],
     children: adminRoutes
   },
+ 
   {
     path: '**',
     redirectTo: 'others/404'

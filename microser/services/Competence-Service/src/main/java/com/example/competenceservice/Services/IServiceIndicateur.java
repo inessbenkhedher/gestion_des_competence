@@ -10,7 +10,7 @@ public interface IServiceIndicateur {
 
     public void addindicateur(Indicateur indicateur);
     public Indicateur getindicateur(Long id);
-    public List<IndicateurDto> getAllindicateur();
+    public List<Indicateur> getAllindicateur();
     public void deleteindicateur(Long id);
-    public void updateindicateur(Indicateur indicateur);
+    public void updateIndicateur(Long id, Indicateur incomingIndicateur);
 }

@@ -1,6 +1,7 @@
 package com.example.competenceservice.Services;
 
 import com.example.competenceservice.Entites.Famille;
+import com.example.competenceservice.Entites.Indicateur;
 import com.example.competenceservice.Repository.FamilleRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,17 @@ public class ServiceFamille implements IServiceFamille {
     }
 
     @Override
-    public void updatefamille(Famille famille) {
-        fr.save(famille);
+    public void updatefamille(Long id,Famille famille) {
+        Famille existing = fr.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Famille non trouvé"));
+
+        if (famille.getTitle() != null && !famille.getTitle().isEmpty()) {
+            existing.setTitle(famille.getTitle());
+        }
+        if (famille.getDescription() != null && !famille.getDescription().isEmpty()) {
+            existing.setDescription(famille.getDescription());
+        }
+
+        fr.save(existing);
     }
 }
