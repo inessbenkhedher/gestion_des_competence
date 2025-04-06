@@ -2,9 +2,11 @@ package com.example.competenceservice.Services;
 
 import com.example.competenceservice.Dto.CompetenceDto;
 import com.example.competenceservice.Entites.Competence;
+import com.example.competenceservice.Entites.Famille;
 import com.example.competenceservice.Entites.Indicateur;
 import com.example.competenceservice.Mappers.CompetenceMapper;
 import com.example.competenceservice.Repository.CompetenceRepository;
+import com.example.competenceservice.Repository.IndicateurRepository;
 import io.micrometer.core.instrument.MultiGauge;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -27,6 +29,7 @@ import java.util.List;
 public class ServiceCompetence implements IServiceCompetence{
 
     private CompetenceRepository cr;
+    private IndicateurRepository ir;
     private CompetenceMapper competenceMapper;
 
     @Override
@@ -40,15 +43,9 @@ public class ServiceCompetence implements IServiceCompetence{
     }
 
     @Override
-    public List<CompetenceDto> getAllcompetence() {
-        List<Competence> competences = cr.findAll();
-        List<CompetenceDto> competenceDtos = new ArrayList<>();
+    public List<Competence> getAllcompetence() {
 
-        for (Competence competence : competences) {
-            competenceDtos.add(competenceMapper.comptdtofromcomp(competence));
-        }
-
-        return competenceDtos;
+        return cr.findAll();
     }
 
     @Override
@@ -57,8 +54,31 @@ public class ServiceCompetence implements IServiceCompetence{
     }
 
     @Override
-    public void updatecompetence(Competence competence) {
-        cr.save(competence);
+    public void updatecompetence(Long id, Competence competence) {
+        Competence existing = cr.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("competence non trouvé"));
+
+        if (competence.getCode() != null && !competence.getCode().isEmpty()) {
+            existing.setCode(competence.getCode());
+        }
+        if (competence.getDesignation() != null && !competence.getDesignation().isEmpty()) {
+            existing.setDesignation(competence.getDesignation());
+        }
+        if (competence.getObservatin() != null && !competence.getObservatin().isEmpty()) {
+            existing.setObservatin(competence.getObservatin());
+        }
+        if (competence.getIndicateur() != null &&
+                (existing.getIndicateur() == null || !existing.getIndicateur().getId().equals(competence.getIndicateur().getId()))) {
+
+            Indicateur newindi = ir.findById(competence.getIndicateur().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("indicateur non trouvée"));
+
+            existing.setIndicateur(newindi);
+        }
+
+
+
+        cr.save(existing);
     }
 
 
@@ -70,7 +90,7 @@ public class ServiceCompetence implements IServiceCompetence{
 
         // Créer une ligne pour les en-têtes
         Row headerRow = sheet.createRow(0);
-        String[] headers = {"ID", "Designation", "Description", "Type"};
+        String[] headers = {"Code", "Designation", "Observatin", "Indicateur"};
 
         // Définir le style pour l'en-tête
         CellStyle headerStyle = workbook.createCellStyle();
@@ -112,5 +132,9 @@ public class ServiceCompetence implements IServiceCompetence{
         workbook.close();
     }
 
+    @Override
+    public List<Competence> getCompetencesByIndicateurId(Long indicateurId) {
+        return cr.findByIndicateurId(indicateurId);
+    }
 
 }

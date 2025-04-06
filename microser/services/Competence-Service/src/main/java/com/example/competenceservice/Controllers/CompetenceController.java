@@ -29,7 +29,7 @@ public class CompetenceController {
     }
 
     @GetMapping
-    public List<CompetenceDto> getAllCompetences() {
+    public List<Competence> getAllCompetences() {
         return serviceCompetence.getAllcompetence();
     }
 
@@ -38,13 +38,19 @@ public class CompetenceController {
         serviceCompetence.deletecompetence(id);
     }
 
-    @PutMapping
-    public void updateCompetence(@RequestBody Competence competence) {
-        serviceCompetence.updatecompetence(competence);
+    @PutMapping("/{id}")
+    public void updateCompetence(@PathVariable Long id, @RequestBody Competence competence) {
+
+        serviceCompetence.updatecompetence(id,competence);
     }
 
     @GetMapping("/export")
     public void exportCompetences(HttpServletResponse response) throws IOException {
         serviceCompetence.exportCompetencesToExcel(response);
+    }
+
+    @GetMapping("/indicateur/{indicateurId}")
+    public List<Competence> getCompetencesByIndicateur(@PathVariable Long indicateurId) {
+        return serviceCompetence.getCompetencesByIndicateurId(indicateurId);
     }
 }

@@ -15,6 +15,7 @@ import java.sql.Date;
 @Builder
 public class employeedto {
 
+    private Long id;
     private String matricule;
     private String nom;
     private String prenom;

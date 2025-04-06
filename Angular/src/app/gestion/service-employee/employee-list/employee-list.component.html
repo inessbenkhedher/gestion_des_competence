@@ -1,0 +1,146 @@
+<!-- Bouton Évaluer en haut à droite -->
+<div class="row d-flex align-items-center">
+    <div class="col-md-4">
+      <div class="form-group">
+        <input id="search" placeholder="Search Employees" [formControl]="searchControl"
+          class="form-control form-control-rounded" type="text">
+      </div>
+    </div>
+  
+    <div class="col-md-8 text-right">
+      <button class="btn btn-primary" (click)="open(evaluationModal)" [hidden]="selectedEmployees.length === 0">
+        Évaluer
+      </button>
+    </div>
+  </div>
+  
+ 
+  
+  <!-- Tableau des employés -->
+  <div class="col-md-12">
+    <div class="card o-hidden">
+      <ngx-datatable style="height: 500px; box-shadow: none" class="material fullscreen"
+        [columnMode]="'force'" [headerHeight]="50" [footerHeight]="50" [rowHeight]="60"
+        [scrollbarV]="true" [rows]="filteredEmployees">
+        
+        <ngx-datatable-column name="Select" [maxWidth]="60">
+          <ng-template ngx-datatable-cell-template let-row="row">
+            <input type="checkbox" (change)="toggleSelection(row)" [checked]="selectedEmployees.includes(row)">
+          </ng-template>
+        </ngx-datatable-column>
+  
+        <ngx-datatable-column name="Matricule" [width]="150">
+          <ng-template ngx-datatable-cell-template let-row="row">
+            {{ row.matricule }}
+          </ng-template>
+        </ngx-datatable-column>
+  
+        <ngx-datatable-column name="Name" [width]="200">
+          <ng-template ngx-datatable-cell-template let-row="row">
+            {{ row.nom }} {{ row.prenom }}
+          </ng-template>
+        </ngx-datatable-column>
+  
+        <ngx-datatable-column name="Date Embauche">
+          <ng-template ngx-datatable-cell-template let-row="row">
+            {{ row.dateEmbauche | date: 'dd/MM/yyyy' }}
+          </ng-template>
+        </ngx-datatable-column>
+  
+        <ngx-datatable-column name="Post">
+          <ng-template ngx-datatable-cell-template let-row="row">
+            {{ row.post?.title }}
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column name="Actions" [width]="120">
+          <ng-template ngx-datatable-cell-template let-row="row">
+            <button class="btn btn-sm btn-info" (click)="goToEmployeeDetails(row.id)">👁️Show</button>
+          </ng-template>
+        </ngx-datatable-column>
+  
+      </ngx-datatable>
+    </div>
+  </div>
+  
+
+  
+<!-- Modal Structure -->
+<ng-template #evaluationModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Évaluation</h4>
+    <button type="button" class="close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <!-- Étape 1 -->
+    <div *ngIf="currentStep === 1">
+      <form [formGroup]="step1Form">
+        <div class="form-group">
+          <label for="famille">Famille :</label>
+          <select id="famille" formControlName="famille" class="form-control" (change)="onFamilleSelect($event.target.value)">
+            <option value="" disabled selected>Choisir une famille</option>
+            <option *ngFor="let famille of familles" [value]="famille.id">{{ famille.title }}</option>
+          </select>
+        </div>
+
+        <div class="form-group" *ngIf="indicateurs.length > 0">
+          <label for="indicateur">Indicateur :</label>
+          <select id="indicateur" formControlName="indicateur" class="form-control" (change)="onIndicateurSelect($event.target.value)">
+            <option value="" disabled selected>Choisir un indicateur</option>
+            <option *ngFor="let indicateur of indicateurs" [value]="indicateur.id">{{ indicateur.title }}</option>
+          </select>
+        </div>
+
+        <div class="form-group" *ngIf="competences.length > 0">
+          <label for="competence">Compétence :</label>
+          <select id="competence" formControlName="competence" class="form-control">
+            <option value="" disabled selected>Choisir une compétence</option>
+            <option *ngFor="let competence of competences" [value]="competence.id">{{ competence.code }}</option>
+          </select>
+        </div>
+      </form>
+
+      <div class="text-right mt-3">
+        <button class="btn btn-primary" (click)="goToStep(2)" [disabled]="!step1Form.valid">Suivant</button>
+      </div>
+    </div>
+
+   
+    <!-- Étape 2 -->
+<div *ngIf="currentStep === 2">
+  <form [formGroup]="step2Form">
+    <div class="form-group">
+      <label for="date">Date :</label>
+      <input type="date" id="date" formControlName="date" class="form-control" />
+    </div>
+
+    <div class="form-group">
+      <label for="statut">Statut :</label>
+      <input type="text" id="statut" formControlName="statut" class="form-control" placeholder="Statut de l'évaluation" />
+    </div>
+
+    <div class="form-group">
+      <label for="commentaire">Commentaire :</label>
+      <textarea id="commentaire" formControlName="commentaire" class="form-control" rows="4"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="niveau">Niveau :</label>
+      <select id="niveau" formControlName="niveau" class="form-control">
+        <option value="" disabled selected>Choisir un niveau</option>
+        <option *ngFor="let niveau of niveaux" [value]="niveau">{{ niveau }}</option>
+      </select>
+    </div>
+
+  </form>
+
+      <div class="d-flex justify-content-between mt-3">
+        <button class="btn btn-secondary" (click)="goToStep(1)">Précédent</button>
+        <button class="btn btn-success" (click)="submitEvaluation()" [disabled]="!step2Form.valid">Soumettre</button>
+      </div>
+    </div>
+  </div>
+</ng-template>

@@ -11,5 +11,5 @@ public interface IServiceEmploye {
     public List<employeedto> getAllemployee();
     public void deleteemployee(Long id);
     public void updateemployee(Employee employee);
-    public List<Employee> getEmployeesByPost(Long postId);
+    public List<Employee> getEmployeesByPost(String mc);
 }

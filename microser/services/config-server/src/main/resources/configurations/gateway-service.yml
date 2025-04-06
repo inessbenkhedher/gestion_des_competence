@@ -9,6 +9,10 @@ spring:
           uri: lb://EMPLOYEE-SERVICE
           predicates:
             - Path=/employees/**
+        - id: employee-service
+          uri: lb://EMPLOYEE-SERVICE
+          predicates:
+            - Path=/posts/**
         - id: competence-service
           uri: lb://COMPETENCE-SERVICE
           predicates:

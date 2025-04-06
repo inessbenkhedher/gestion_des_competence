@@ -47,7 +47,7 @@ public class ServiceEmployee implements IServiceEmploye{
         er.save(employee);
     }
 
-    public List<Employee> getEmployeesByPost(Long postId) {
-        return er.findByPostId(postId);
+    public List<Employee> getEmployeesByPost(String mc) {
+        return er.findbyNompost(mc);
     }
 }

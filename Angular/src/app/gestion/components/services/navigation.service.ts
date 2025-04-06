@@ -86,7 +86,7 @@ export class NavigationService {
             sub: [
                 {
                     name: 'Employés',
-                    state: '/service-employe/employes',
+                    state: '/service-employee/employees',
                     type: 'link',
                     icon: 'i-Checked-User',
                 },

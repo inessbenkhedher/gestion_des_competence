@@ -48,7 +48,10 @@ public class IndicateursController {
 
 
         serviceIndicateur.updateIndicateur(id, indicateur);
+    }
 
-
+    @GetMapping("/famille/{familleId}")
+    public List<Indicateur> getIndicateursByFamille(@PathVariable Long familleId) {
+        return serviceIndicateur.getIndicateursByFamilleId(familleId);
     }
 }

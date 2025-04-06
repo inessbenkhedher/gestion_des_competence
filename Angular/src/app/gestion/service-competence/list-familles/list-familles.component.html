@@ -58,7 +58,7 @@
                     </ng-template>
                     <ng-template ngx-datatable-cell-template let-row="row">
                         <button class="btn btn-outline-warning m-1" (click)="editFamille(row.id)">✏️ Modifier</button>
-                        <button class="btn btn-outline-danger m-1" (click)="deleteFamille(row.id)">
+                        <button class="btn btn-outline-danger m-1" (click)="openDeleteModal(row.id, modalConfirm)">
                             🗑️ Supprimer
                         </button>
                     </ng-template>
@@ -71,4 +71,21 @@
             <p class="text-muted">⚠️ Aucune famille trouvée.</p>
         </div>
     </div>
-</div>
+</div>  
+
+<!-- DELETE CONFIRMATION MODAL -->
+<ng-template #modalConfirm let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">⚠️ Confirmation</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('cancel')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>Êtes-vous sûr de vouloir supprimer cette famille ? Cette action est irréversible.</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss('cancel')">Annuler</button>
+    <button type="button" class="btn btn-danger" (click)="confirmDelete(modal)">Supprimer</button>
+  </div>
+</ng-template>

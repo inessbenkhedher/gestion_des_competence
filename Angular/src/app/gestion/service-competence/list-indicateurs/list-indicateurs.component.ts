@@ -49,6 +49,6 @@ export class ListIndicateursComponent implements OnInit {
 
   showCompetences(id: number) {
     console.log('🔍 Show Competences for Indicateur:', id);
-    // TODO: Navigate to Competence Page
+    this.router.navigate(['service-competence/competences/new'], { queryParams: { indicateurId: id } });
   }
 }

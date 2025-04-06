@@ -5,6 +5,7 @@ import { CategorieComponent } from './categorie/categorie.component';
 import { CompetencesComponent } from './competences/competences.component';
 import { ListIndicateursComponent } from './list-indicateurs/list-indicateurs.component';
 import { ListFamillesComponent } from './list-familles/list-familles.component';
+import { ListCompetancesComponent } from './list-competances/list-competances.component';
 
 
 const routes: Routes = [
@@ -13,7 +14,9 @@ const routes: Routes = [
   { path: 'familles/:id', component: FamilleComponent  },
   { path: 'categories/new', component: CategorieComponent }, // ➕ Création
   { path: 'categories/:id', component: CategorieComponent } ,
-  { path: 'competences', component: CompetencesComponent },
+  { path: 'competences', component: ListCompetancesComponent },
+  { path: 'competences/new', component: CompetencesComponent },
+  { path: 'competences/:id', component: CompetencesComponent },
   {
     path: 'indicateurs',component: ListIndicateursComponent
   }

@@ -13,4 +13,5 @@ public interface IServiceIndicateur {
     public List<Indicateur> getAllindicateur();
     public void deleteindicateur(Long id);
     public void updateIndicateur(Long id, Indicateur incomingIndicateur);
+    public List<Indicateur> getIndicateursByFamilleId(Long familleId);
 }

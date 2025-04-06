@@ -1,1 +1,28 @@
-<p>competences works!</p>
+<div class="container">
+    <h4 class="text-center">{{ isEditMode ? 'Modifier une compétence' : 'Ajouter une compétence' }}</h4>
+  
+    <form [formGroup]="competenceForm" (ngSubmit)="onSubmit()">
+      <!-- ✅ Code -->
+      <div class="form-group">
+        <input type="text" class="form-control" placeholder="Code" formControlName="code" required>
+      </div>
+  
+      <!-- ✅ Designation -->
+      <div class="form-group">
+        <input type="text" class="form-control" placeholder="Désignation" formControlName="designation" required>
+      </div>
+  
+      <!-- ✅ Observation -->
+      <div class="form-group">
+        <input type="text" class="form-control" placeholder="Observation" formControlName="observation">
+      </div>
+  
+     
+      
+      <!-- ✅ Submit Button -->
+      <button class="btn btn-primary w-100" type="submit">
+        {{ isEditMode ? 'Modifier Compétence' : 'Ajouter Compétence' }}
+      </button>
+    </form>
+  </div>
+  

@@ -13,8 +13,10 @@ public interface IServiceCompetence {
 
     public void addcompetence(Competence competence);
     public Competence  getcompetence(Long id);
-    public List<CompetenceDto> getAllcompetence();
+    public List<Competence> getAllcompetence();
     public void deletecompetence(Long id);
-    public void updatecompetence(Competence competence);
+    public void updatecompetence(Long id, Competence competence);
     public void exportCompetencesToExcel(HttpServletResponse response) throws IOException;
+    public List<Competence> getCompetencesByIndicateurId(Long indicateurId);
+
 }

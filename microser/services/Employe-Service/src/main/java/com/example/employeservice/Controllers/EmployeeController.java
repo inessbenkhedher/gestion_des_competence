@@ -42,9 +42,9 @@ public class EmployeeController {
         serviceEmployee.updateemployee(employee);
     }
 
-    @GetMapping("/byPost/{postId}")
-    public ResponseEntity<List<Employee>> getEmployeesByPost(@PathVariable Long postId) {
-        List<Employee> employees = serviceEmployee.getEmployeesByPost(postId);
+    @GetMapping("/byPost")
+    public ResponseEntity<List<Employee>> getEmployeesByPost(@RequestParam String mc) {
+        List<Employee> employees = serviceEmployee.getEmployeesByPost(mc);
         return ResponseEntity.ok(employees);
     }
 }

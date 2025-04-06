@@ -66,4 +66,9 @@ public class ServiceIndicateur implements IServiceIndicateur {
 
         ir.save(existing);
     }
+
+    @Override
+    public List<Indicateur> getIndicateursByFamilleId(Long familleId) {
+        return ir.findByFamilleId(familleId);
+    }
 }

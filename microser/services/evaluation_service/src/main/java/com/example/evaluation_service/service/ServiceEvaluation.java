@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -96,14 +97,15 @@ public class ServiceEvaluation implements IServiceEvaluation {
     }
 
     @Override
-    public void updateevaluation(Evaluation evaluation) {
+    public void updateevaluation(Long id, Evaluation evaluation) {
 
-        Evaluation existingEvaluation = er.findById(evaluation.getId())
+        Evaluation existingEvaluation = er.findById(id)
                 .orElseThrow(() -> new RuntimeException("Evaluation Not Found 😡"));
 
         existingEvaluation.setNiveau(evaluation.getNiveau());
         existingEvaluation.setStatut(evaluation.getStatut());
         existingEvaluation.setDate(evaluation.getDate());
+        existingEvaluation.setCommentaire(evaluation.getCommentaire());
 
         er.save(existingEvaluation);
 
@@ -119,8 +121,12 @@ public class ServiceEvaluation implements IServiceEvaluation {
 
                     // Créer une nouvelle réponse avec la désignation et le niveau
                     return new CompetenceWithNiveau(
+                            evaluation.getId(),
                             competence.getDesignation(), // Désignation réelle
-                            evaluation.getNiveau().toString() // Niveau d'évaluation
+                            evaluation.getNiveau().toString(),
+                            evaluation.getDate(),
+                            evaluation.getStatut(),
+                            evaluation.getCommentaire()
                     );
                 })
                 .collect(Collectors.toList());

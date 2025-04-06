@@ -12,7 +12,7 @@ public interface IServiceEvaluation {
     public Evaluation getevaluation(Long id);
     public List<EvaluationDto> getAllevaluation();
     public void deleteevaluation(Long id);
-    public void updateevaluation(Evaluation evaluation);
+    public void updateevaluation(Long id,Evaluation evaluation);
     public List<CompetenceWithNiveau> getCompetencesByEmployeeId  (Long employeeId);
     public List<Evaluation> createBulkEvaluations(BulkEvaluationReques request);
 }

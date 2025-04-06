@@ -60,6 +60,15 @@ const adminRoutes: Routes = [
     {
       path: 'service-competence',
       loadChildren: () => import('./gestion/service-competence/service-competence.module').then(m => m.ServiceCompetenceModule)
+    },
+    {
+      path: 'service-employee',
+      loadChildren: () => import('./gestion/service-employee/service-employee.module').then(m => m.ServiceEmployeeModule)
+    },
+
+    {
+      path: 'service-evaluation',
+      loadChildren: () => import('./gestion/service-evaluation/service-evaluation.module').then(m => m.ServiceEvaluationModule)
     }
   ];
 const routes: Routes = [

@@ -6,6 +6,7 @@ import com.example.evaluation_service.DTO.Competence;
 import com.example.evaluation_service.DTO.CompetenceWithNiveau;
 import com.example.evaluation_service.DTO.EvaluationDto;
 import com.example.evaluation_service.Entities.Evaluation;
+import com.example.evaluation_service.Entities.Niveau_Possible;
 import com.example.evaluation_service.service.IServiceEvaluation;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -39,9 +40,9 @@ public class EvaluationController {
         serviceEvaluation.deleteevaluation(id);
     }
 
-    @PutMapping
-    public void updateEvaluation(@RequestBody Evaluation evaluation) {
-        serviceEvaluation.updateevaluation(evaluation);
+    @PutMapping("/{id}")
+    public void updateEvaluation(@PathVariable Long id,@RequestBody Evaluation evaluation) {
+        serviceEvaluation.updateevaluation(id,evaluation);
     }
 
     @GetMapping("/employee/{employeeId}/competences")
@@ -53,6 +54,11 @@ public class EvaluationController {
     public ResponseEntity<List<Evaluation>> assignCompetenceToEmployees(@RequestBody BulkEvaluationReques request) {
         List<Evaluation> evaluations = serviceEvaluation.createBulkEvaluations(request);
         return ResponseEntity.ok(evaluations);
+    }
+
+    @GetMapping("/niveaux")
+    public Niveau_Possible[] getNiveaux() {
+        return Niveau_Possible.values();
     }
 
 }
