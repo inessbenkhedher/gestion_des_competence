@@ -3,17 +3,20 @@ import { CommonModule } from '@angular/common';
 
 import { ServiceEvaluationRoutingModule } from './service-evaluation-routing.module';
 import { EvaluationsComponent } from './evaluations/evaluations.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatriceComponent } from './matrice/matrice.component';
 
 
 @NgModule({
   declarations: [
-    EvaluationsComponent
+    EvaluationsComponent,
+    MatriceComponent
   ],
   imports: [
     CommonModule,
     ServiceEvaluationRoutingModule,
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule,
   ]
 })
 export class ServiceEvaluationModule { }

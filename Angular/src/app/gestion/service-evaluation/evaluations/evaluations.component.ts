@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { EmployeeService } from '../../service-employee/services/employee.service';
 import { EvaluationService } from '../services/evaluation.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { KeycloakService } from 'src/app/Services/keycloak/keycloak.service';
 
 @Component({
   selector: 'app-evaluations',
@@ -25,7 +26,8 @@ export class EvaluationsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private evaluationService: EvaluationService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private keycloakService: KeycloakService
   ) {}
 
   ngOnInit(): void {
@@ -72,6 +74,10 @@ export class EvaluationsComponent implements OnInit {
       console.error('❌ ID is missing!');
       return;
     }
+
+    const firstName = this.keycloakService.profile?.firstName || '';
+    const lastName = this.keycloakService.profile?.lastName || '';
+    this.selectedEvaluation.nomEvaluator = `${firstName} ${lastName}`.trim();
   
     this.evaluationService.updateEvaluation(this.selectedEvaluation.id, this.selectedEvaluation).subscribe(() => {
       this.getEvaluations(); // Refresh list

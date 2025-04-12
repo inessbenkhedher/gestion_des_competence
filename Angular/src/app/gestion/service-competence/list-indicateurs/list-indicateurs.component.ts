@@ -95,7 +95,8 @@ onSubmit(modal: any) {
     this.toastr.warning(msg, 'Attention', {
       timeOut: 2000,
       closeButton: true,
-      progressBar: true
+      progressBar: true,
+      
     });
   }
 

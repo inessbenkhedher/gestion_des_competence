@@ -105,6 +105,7 @@ public class ServiceEvaluation implements IServiceEvaluation {
         existingEvaluation.setNiveau(evaluation.getNiveau());
         existingEvaluation.setStatut(evaluation.getStatut());
         existingEvaluation.setDate(evaluation.getDate());
+        existingEvaluation.setNomEvaluator(evaluation.getNomEvaluator());
         existingEvaluation.setCommentaire(evaluation.getCommentaire());
 
         er.save(existingEvaluation);
@@ -123,9 +124,11 @@ public class ServiceEvaluation implements IServiceEvaluation {
                     return new CompetenceWithNiveau(
                             evaluation.getId(),
                             competence.getDesignation(), // Désignation réelle
+                            evaluation.getNomEvaluator(),
                             evaluation.getNiveau().toString(),
                             evaluation.getDate(),
                             evaluation.getStatut(),
+
                             evaluation.getCommentaire()
                     );
                 })
@@ -140,6 +143,7 @@ public class ServiceEvaluation implements IServiceEvaluation {
                         .statut(request.getStatut())
                         .commentaire(request.getCommentaire())
                         .niveau(request.getNiveau())
+                        .nomEvaluator(request.getNomEvaluator())
                         .competenceId(request.getCompetenceId())
                         .employeeId(employeeId)
                         .build()

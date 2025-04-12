@@ -6,6 +6,7 @@ import * as bootstrap from 'bootstrap';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { EvaluationService } from '../services/evaluation.service';
 import { Router } from '@angular/router';
+import { KeycloakService } from 'src/app/Services/keycloak/keycloak.service';
 
 @Component({
   selector: 'app-employee-list',
@@ -34,7 +35,8 @@ familles: any[] = [];
     private evaluationService: EvaluationService,
     private fb: FormBuilder,
     private cdRef: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    private keycloakService: KeycloakService
   ) {
    
   
@@ -208,6 +210,10 @@ this.step1Form.controls['competence'].disable();
       console.error("Les formulaires ne sont pas initialisés.");
       return;
     }
+
+    const firstName = this.keycloakService.profile?.firstName || '';
+    const lastName = this.keycloakService.profile?.lastName || '';
+    const nomEvaluator = `${firstName} ${lastName}`.trim();
   
     const competenceControl = this.step1Form.get('competence');
     const dateControl = this.step2Form.get('date');
@@ -235,7 +241,8 @@ this.step1Form.controls['competence'].disable();
       statut: this.step2Form.value.statut,
       commentaire: this.step2Form.value.commentaire,
       niveau: this.step2Form.value.niveau,
-      date: formattedDate // Send the date as ISO string
+      date: formattedDate, // Send the date as ISO string
+      nomEvaluator: nomEvaluator
     };
   
     // Call the bulk evaluation API
@@ -252,21 +259,9 @@ this.step1Form.controls['competence'].disable();
 
 
 
-
-
   goToEmployeeDetails(id: any): void {
     this.router.navigate(['service-evaluation/employee-details', id]);
   }
-
-
-
-
-
-
-
-
-
-
 
 
 

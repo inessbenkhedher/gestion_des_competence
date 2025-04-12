@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class Employee {
+    private Long id;
     private String matricule;
     private String nom;
     private String prenom;

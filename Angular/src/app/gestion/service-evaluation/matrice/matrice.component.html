@@ -1,0 +1,70 @@
+<div class="">
+    <div class="breadcrumb">
+      <h1>Grille De Polyvalence</h1>
+    </div>
+  
+    <div class="separator-breadcrumb border-top"></div>
+  
+    <!-- Ligne avec Select et Recherche -->
+    <div class="row align-items-end mb-3">
+      <!-- Select Famille (gauche) -->
+      <div class="col-md-6 form-group">
+        <label for="familleSelect"><strong>Famille :</strong></label>
+        <select id="familleSelect"
+                [(ngModel)]="selectedFamilleId"
+                (change)="onFamilleChange()"
+                class="form-control form-control-rounded">
+          <option [value]="null" disabled selected>Sélectionner une famille</option>
+          <option *ngFor="let famille of familles" [value]="famille.id">
+            {{ famille.title }}
+          </option>
+        </select>
+      </div>
+  
+      <!-- Barre de recherche (droite) -->
+      <div class="col-md-6 form-group">
+        <label for="search"><strong>Recherche :</strong></label>
+        <input id="search"
+               placeholder="Search Employees"
+               [formControl]="searchControl"
+               class="form-control form-control-rounded"
+               type="text">
+      </div>
+    </div>
+  
+    <!-- Placeholder matrice -->
+    <div class="mt-4 text-muted text-center border rounded p-4">
+        <div class="table-responsive mt-4" *ngIf="filteredEmployees && indicateurs.length">
+            <table class="table table-bordered text-center">
+              <thead>
+                <tr>
+                  <th rowspan="2">Employé</th>
+                  <ng-container *ngFor="let indic of indicateurs">
+                    <th [attr.colspan]="competencesGroupedByIndicateur[indic.id]?.length">
+                      {{ indic.title }}
+                    </th>
+                  </ng-container>
+                </tr>
+                <tr>
+                  <ng-container *ngFor="let indic of indicateurs">
+                    <ng-container *ngFor="let comp of competencesGroupedByIndicateur[indic.id]">
+                      <th>{{ comp.designation }}</th>
+                    </ng-container>
+                  </ng-container>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let emp of filteredEmployees">
+                  <td>{{ emp.nom }} {{ emp.prenom }}</td>
+                  <ng-container *ngFor="let indic of indicateurs">
+                    <ng-container *ngFor="let comp of competencesGroupedByIndicateur[indic.id]">
+                        <td>{{ getNiveauFor(emp.id, comp.id) }}</td>
+                    </ng-container>
+                  </ng-container>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+    </div>
+  </div>
+  

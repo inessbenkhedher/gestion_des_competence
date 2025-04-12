@@ -13,6 +13,7 @@ public class EvaluationDto {
 
     private String statut;
     private String commentaire;
+    private String nomEvaluator;
     private Niveau_Possible niveau;
     private Employee employee;
     private Competence competence;

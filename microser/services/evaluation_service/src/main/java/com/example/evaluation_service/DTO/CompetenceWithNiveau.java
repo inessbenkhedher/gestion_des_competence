@@ -14,6 +14,7 @@ public class CompetenceWithNiveau {
 
     private Long id;
     private String designation;
+    private String nomEvaluator;
     private String niveau;
      private Date date;
      private String statut;

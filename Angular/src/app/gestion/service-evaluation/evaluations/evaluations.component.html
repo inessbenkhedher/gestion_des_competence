@@ -25,7 +25,8 @@
                 Date: {{ eval.date ? (eval.date | date: 'dd/MM/yyyy') : '—' }} <br>
                 Niveau: {{ eval.niveau }} <br>
                 Statut: {{ eval.statut }} <br>
-                Commentaire: {{ eval.commentaire }}
+                Commentaire: {{ eval.commentaire }}<br>
+                Évaluateur : {{ eval.nomEvaluator || '—' }}
               </p>
             </div>
             <div>

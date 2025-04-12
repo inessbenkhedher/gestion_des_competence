@@ -5,5 +5,7 @@ import lombok.Data;
 @Data
 public class Competence {
 
+    private Long id;
+
     private String designation;
 }

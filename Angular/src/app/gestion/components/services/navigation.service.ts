@@ -51,6 +51,20 @@ export class NavigationService {
 
     defaultMenu: IMenuItem[] = [
         {
+            name: 'Grille de Polyvalence',
+            type: 'dropDown',
+            icon: 'i-Bar-Chart',
+            sub: [
+                {
+                    name: 'Grille',
+                    state: '/service-evaluation/matrice',
+                    type: 'link',
+                    icon: 'i-Checked-User',
+                },
+               
+            ]
+        },
+        {
             name: 'Service Compétence',
             description: 'Gestion des compétences et des employés',
             type: 'dropDown',
@@ -90,26 +104,7 @@ export class NavigationService {
                     type: 'link',
                     icon: 'i-Checked-User',
                 },
-                {
-                    name: 'Postes',
-                    state: '/service-employe/postes',
-                    type: 'link',
-                    icon: 'i-Briefcase',
-                }
-            ]
-        },
-        {
-            name: 'Service Évaluations',
-            description: 'Gestion des évaluations des employés',
-            type: 'dropDown',
-            icon: 'i-File-Horizontal-Text',
-            sub: [
-                {
-                    name: 'Évaluations',
-                    state: '/service-evaluations/evaluations',
-                    type: 'link',
-                    icon: 'i-Chart-Bar',
-                }
+               
             ]
         }
     ];

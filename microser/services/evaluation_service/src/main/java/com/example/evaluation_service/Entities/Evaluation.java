@@ -26,6 +26,7 @@ public class Evaluation {
 
     private String statut;
     private String commentaire;
+    private String nomEvaluator;
 
     @Enumerated(EnumType.STRING)
     private Niveau_Possible niveau;
