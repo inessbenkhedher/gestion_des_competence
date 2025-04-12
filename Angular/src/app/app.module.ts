@@ -10,7 +10,7 @@ import { InMemoryWebApiModule } from 'angular-in-memory-web-api';
 import { InMemoryDataService } from './shared/inmemory-db/inmemory-db.service';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { KeycloakService } from './Services/keycloak/keycloak.service';
-import { CompetencesComponent } from './gestion/service-competence/competences/competences.component';
+
 import { HttpTokenInterceptor } from './Services/interceptor/http-token.interceptor';
 
 export function kcFactory(kcService: KeycloakService) {
@@ -19,8 +19,8 @@ export function kcFactory(kcService: KeycloakService) {
 
 @NgModule({
   declarations: [
-    AppComponent,
-    CompetencesComponent
+    AppComponent
+
   ],
   imports: [
     BrowserModule,

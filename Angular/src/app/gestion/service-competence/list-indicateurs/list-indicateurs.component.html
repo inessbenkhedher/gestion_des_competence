@@ -1,72 +1,172 @@
 <div class="breadcrumb">
-  <h1>Indicateurs</h1>
-  <ul>
-      <li><a href="">Gestion des Compétences</a></li>
-      <li>Indicateurs</li>
-  </ul>
-</div>
-
-<div class="separator-breadcrumb border-top"></div>
-
-<!-- ADD BUTTON -->
-<div class="row mb-3">
-  <div class="col-md-12 mb-3">
-      <button class="btn btn-primary float-right" (click)="createIndicateur()">➕ Ajouter un Indicateur</button>
+    <h1>Indicateurs</h1>
+    <ul>
+        <li><a href="">Gestion des Compétences</a></li>
+        <li>Indicateurs</li>
+    </ul>
   </div>
-</div>
-
-<!-- INDICATEUR TABLE -->
-<div class="row">
-  <div class="col-md-12">
-      <div class="card o-hidden">
-          <ngx-datatable *ngIf="indicateurs?.length > 0" 
-              class="material fullscreen" 
-              style="box-shadow: none"
-              [style.height]="60*indicateurs.length+60+'px'"
+  
+  <div class="separator-breadcrumb border-top"></div>
+  
+  <!-- ADD BUTTON -->
+  <div class="row mb-3">
+    <div class="col-md-12 mb-3">
+        <button class="btn btn-primary float-right" (click)="openIndicateurModal(indicateurModal)">➕ Ajouter un Indicateur</button>
+    </div>
+  </div>
+  
+  <!-- INDICATEUR TABLE -->
+  <div class="row">
+    <div class="col-md-12">
+        <div class="card o-hidden">
+            <ngx-datatable
+              class="material fullscreen"
+              style="height: calc(100vh - 270px); box-shadow: none"
               [columnMode]="'force'"
-              [headerHeight]="50" 
-              [footerHeight]="0" 
-              [rowHeight]="60" 
-              [scrollbarV]="true" 
-              [scrollbarH]="true" 
-              [rows]="indicateurs">
-              
-              <!-- Title Column -->
-              <ngx-datatable-column name="Titre" prop="title">
-                  <ng-template ngx-datatable-header-template>
-                      Titre
-                  </ng-template>
-                  <ng-template ngx-datatable-cell-template let-row="row">
-                      {{ row.title }}
-                  </ng-template>
+              [headerHeight]="50"
+              [footerHeight]="50"
+              [rowHeight]="60"
+              [scrollbarV]="true"
+              [scrollbarH]="true"
+              [limit]="10"
+              [rows]="indicateurs"
+              [(selected)]="selected">
+      
+              <!-- Selection Checkbox -->
+              <ngx-datatable-column name="Select" [width]="50" [maxWidth]="60">
+                <ng-template ngx-datatable-cell-template let-row="row">
+                  <input
+                    type="checkbox"
+                    (change)="toggleSelection(row)"
+                    [checked]="selected.includes(row)">
+                </ng-template>
               </ngx-datatable-column>
-
+      
+              <!-- Titre Column -->
+              <ngx-datatable-column name="Titre" prop="title" [width]="250">
+                <ng-template ngx-datatable-header-template>Titre</ng-template>
+                <ng-template ngx-datatable-cell-template let-row="row">
+                  {{ row.title }}
+                </ng-template>
+              </ngx-datatable-column>
+      
               <!-- Description Column -->
               <ngx-datatable-column name="Description" prop="description">
-                  <ng-template ngx-datatable-header-template>
-                      Description
-                  </ng-template>
-                  <ng-template ngx-datatable-cell-template let-row="row">
-                      {{ row.description || 'Aucune description' }}
-                  </ng-template>
+                <ng-template ngx-datatable-header-template>Description</ng-template>
+                <ng-template ngx-datatable-cell-template let-row="row">
+                  {{ row.description || 'Aucune description' }}
+                </ng-template>
               </ngx-datatable-column>
-
-              <!-- Actions Column -->
-              <ngx-datatable-column name="Actions" [width]="250">
-                  <ng-template ngx-datatable-header-template>
-                      Actions
-                  </ng-template>
-                  <ng-template ngx-datatable-cell-template let-row="row">
-                      <button class="btn btn-outline-warning m-1" (click)="editIndicateur(row.id)">✏️ Modifier</button>
-                      <button class="btn btn-outline-info m-1" (click)="showCompetences(row.id)">📂 Compétence</button>
-                  </ng-template>
+      
+              <!-- Famille Title (Optional Enhancement) -->
+              <ngx-datatable-column name="Famille" [width]="200">
+                <ng-template ngx-datatable-cell-template let-row="row">
+                  {{ row.famille?.title || '—' }}
+                </ng-template>
               </ngx-datatable-column>
-          </ngx-datatable>
-      </div>
-
-      <!-- Show message when no data -->
-      <div *ngIf="indicateurs?.length === 0" class="text-center p-4">
-          <p class="text-muted">⚠️ Aucun indicateur trouvé.</p>
-      </div>
+      
+            </ngx-datatable>
+          </div>
+        <div class="d-flex justify-content-end mt-3">
+            <button class="btn btn-outline-warning m-1" 
+                    (click)="onEditClicked(indicateurModal)" 
+                    >✏️ Modifier</button>
+          
+            <button class="btn btn-outline-info m-1" 
+                    (click)="onAddCompetenceClicked(competenceModal)" 
+                    >📂 Compétence</button>
+            <button class="btn btn-outline-danger m-1" 
+                    (click)="handleDelete(modalConfirm)">🗑️ Supprimer</button>
+          </div>
+  
+        <!-- Show message when no data -->
+        <div *ngIf="indicateurs?.length === 0" class="text-center p-4">
+            <p class="text-muted">⚠️ Aucun indicateur trouvé.</p>
+        </div>
+    </div>
   </div>
-</div>
+
+
+  <!-- DELETE CONFIRMATION MODAL -->
+<ng-template #modalConfirm let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">⚠️ Confirmation</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('cancel')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>Êtes-vous sûr de vouloir supprimer cette famille ? Cette action est irréversible.</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss('cancel')">Annuler</button>
+    <button type="button" class="btn btn-danger" (click)="confirmDelete(modal)">Supprimer</button>
+  </div>
+</ng-template>
+
+  
+<ng-template #indicateurModal let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">{{ isEditMode ? 'Modifier un Indicateur' : 'Ajouter un Indicateur' }}</h5>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="indicateurForm" (ngSubmit)="onSubmit(modal)">
+  
+        <div class="form-group mb-3">
+          <label for="title">Titre</label>
+          <input id="title" type="text" class="form-control" formControlName="title" required>
+        </div>
+  
+        <div class="form-group mb-3">
+          <label for="description">Description</label>
+          <input id="description" type="text" class="form-control" formControlName="description">
+        </div>
+  
+        <div class="form-group mb-4" *ngIf="!isEditMode">
+          <label for="famille">Famille</label>
+          <select id="famille" class="form-control" formControlName="familleId" required>
+            <option value="" disabled selected>-- Sélectionner une famille --</option>
+            <option *ngFor="let f of familles" [value]="f.id">{{ f.title }}</option>
+          </select>
+        </div>
+  
+        <button type="submit" class="btn btn-primary w-100">
+          {{ isEditMode ? 'Modifier' : 'Ajouter' }}
+        </button>
+      </form>
+    </div>
+  </ng-template> 
+
+
+  <ng-template #competenceModal let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">{{ isEditCompetence ? 'Modifier une compétence' : 'Ajouter une compétence' }}</h5>
+      <button type="button" class="close" (click)="modal.dismiss()">&times;</button>
+    </div>
+  
+    <div class="modal-body">
+      <form [formGroup]="competenceForm" (ngSubmit)="submitCompetence(modal)">
+        
+        <div class="form-group mb-3">
+          <label for="code">Code</label>
+          <input id="code" type="text" class="form-control" formControlName="code" required>
+        </div>
+  
+        <div class="form-group mb-3">
+          <label for="designation">Désignation</label>
+          <input id="designation" type="text" class="form-control" formControlName="designation" required>
+        </div>
+  
+        <div class="form-group mb-3">
+          <label for="observation">Observation</label>
+          <input id="observation" type="text" class="form-control" formControlName="observation">
+        </div>
+        <button class="btn btn-primary w-100" type="submit">
+        Add Competance
+        </button>
+      </form>
+    </div>
+  </ng-template>

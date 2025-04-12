@@ -85,4 +85,24 @@ export class IndicateurService {
     );
   }
 
+  deleteIndicateur(id: number): Observable<any> {
+    const token = this.keycloakService.token;
+  
+    if (!token) {
+      return throwError(() => new Error('Utilisateur non authentifié'));
+    }
+  
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+  
+    return this.http.delete(`${this.apiUrl}/${id}`, { headers }).pipe(
+      catchError(error => {
+        console.error('❌ Error deleting indicateur:', error);
+        return throwError(() => new Error("Erreur lors de la suppression de la indicateur"));
+      })
+    );
+  }
+
+
 }

@@ -17,76 +17,115 @@
     </div>
 </div>
 
-<!-- COMPETENCE TABLE -->
 <div class="row">
     <div class="col-md-12">
-        <div class="card o-hidden">
-            <ngx-datatable *ngIf="competences?.length > 0" 
-                class="material fullscreen"
-                [style.height]="60*competences.length+60+'px'"
-                [columnMode]="'force'"
-                [headerHeight]="50"
-                [footerHeight]="0"
-                [rowHeight]="60"
-                [scrollbarV]="true"
-                [scrollbarH]="true"
-                [rows]="competences">
-                
-                <!-- Code Column -->
-                <ngx-datatable-column name="Code" prop="code">
-                    <ng-template ngx-datatable-header-template>Code</ng-template>
-                    <ng-template ngx-datatable-cell-template let-row="row">{{ row.code }}</ng-template>
-                </ngx-datatable-column>
-
-                <!-- Description Column -->
-                <ngx-datatable-column name="Description" prop="description">
-                    <ng-template ngx-datatable-header-template>designation</ng-template>
-                    <ng-template ngx-datatable-cell-template let-row="row">
-                        {{ row.designation || 'Aucune description' }}
-                    </ng-template>
-                </ngx-datatable-column>
-
-                <!-- Observation Column -->
-                <ngx-datatable-column name="Observation" prop="observation">
-                    <ng-template ngx-datatable-header-template>Observation</ng-template>
-                    <ng-template ngx-datatable-cell-template let-row="row">
-                        {{ row.observatin || 'N/A' }}
-                    </ng-template>
-                </ngx-datatable-column>
-
-                <!-- Actions Column -->
-                <ngx-datatable-column name="Actions" [width]="200">
-                    <ng-template ngx-datatable-header-template>Actions</ng-template>
-                    <ng-template ngx-datatable-cell-template let-row="row">
-                        <button class="btn btn-outline-warning m-1" (click)="editCompetence(row.id)">✏️ Modifier</button>
-                        <button class="btn btn-outline-danger m-1" (click)="openDeleteModal(row.id, modalConfirm)">
-                            🗑️ Supprimer
-                        </button>
-                    </ng-template>
-                </ngx-datatable-column>
-            </ngx-datatable>
-        </div>
-
-        <!-- Show message when no data -->
-        <div *ngIf="competences?.length === 0" class="text-center p-4">
-            <p class="text-muted">⚠️ Aucune compétence trouvée.</p>
-        </div>
+      <div class="card o-hidden">
+        <ngx-datatable
+          class="material fullscreen"
+          style="height: calc(100vh - 270px); box-shadow: none"
+          [columnMode]="'force'"
+          [headerHeight]="50"
+          [footerHeight]="50"
+          [rowHeight]="60"
+          [scrollbarV]="true"
+          [scrollbarH]="true"
+          [limit]="10"
+          [rows]="competences"
+          [(selected)]="selected">
+  
+          <!-- Selection Checkbox -->
+          <ngx-datatable-column name="Select" [width]="50" [maxWidth]="60">
+            <ng-template ngx-datatable-cell-template let-row="row">
+              <input
+                type="checkbox"
+                (change)="toggleSelection(row)"
+                [checked]="selected.includes(row)">
+            </ng-template>
+          </ngx-datatable-column>
+  
+          <!-- Code Column -->
+          <ngx-datatable-column name="Code" prop="code" [width]="200">
+            <ng-template ngx-datatable-cell-template let-row="row">
+              {{ row.code }}
+            </ng-template>
+          </ngx-datatable-column>
+  
+          <!-- Désignation Column -->
+          <ngx-datatable-column name="Désignation" prop="designation">
+            <ng-template ngx-datatable-cell-template let-row="row">
+              {{ row.designation || 'Aucune désignation' }}
+            </ng-template>
+          </ngx-datatable-column>
+  
+          <!-- Observation Column -->
+          <ngx-datatable-column name="Observation" prop="observatin">
+            <ng-template ngx-datatable-cell-template let-row="row">
+              {{ row.observatin || '—' }}
+            </ng-template>
+          </ngx-datatable-column>
+  
+        </ngx-datatable>
+      </div>
+  
+      <!-- Buttons below the table -->
+      <div class="d-flex justify-content-end mt-3">
+        <button class="btn btn-outline-warning m-1" (click)="editCompetence(competenceModal)">✏️ Modifier</button>
+        <button class="btn btn-outline-danger m-1" (click)="onDeleteClick(modalConfirm)">
+            🗑️ Supprimer
+        </button>
+      </div>
+  
+      <!-- Message when empty -->
+      <div *ngIf="competences?.length === 0" class="text-center p-4">
+        <p class="text-muted">⚠️ Aucune compétence trouvée.</p>
+      </div>
     </div>
-</div>
+  </div>
+  
+  <ng-template #modalConfirm let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">⚠️ Confirmation</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('cancel')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Êtes-vous sûr de vouloir supprimer cette famille ? Cette action est irréversible.</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss('cancel')">Annuler</button>
+      <button type="button" class="btn btn-danger" (click)="confirmDelete(modal)">Supprimer</button>
+    </div>
+  </ng-template>
 
-<!-- DELETE CONFIRMATION MODAL -->
-<ng-template #modalConfirm let-modal>
-  <div class="modal-header">
-    <h4 class="modal-title">⚠️ Confirmation</h4>
-    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('cancel')">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="modal-body">
-    <p>Êtes-vous sûr de vouloir supprimer cette compétence ? Cette action est irréversible.</p>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss('cancel')">Annuler</button>
-    <button type="button" class="btn btn-danger" (click)="confirmDelete(modal)">Supprimer</button>
-  </div>
-</ng-template>
+
+  <ng-template #competenceModal let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">{{ isEditCompetence ? 'Modifier une compétence' : 'Ajouter une compétence' }}</h5>
+      <button type="button" class="close" (click)="modal.dismiss()">&times;</button>
+    </div>
+  
+    <div class="modal-body">
+        <form [formGroup]="competenceForm" (ngSubmit)="submitCompetence(modal)">
+          
+          <div class="form-group mb-3">
+            <label for="code">Code</label>
+            <input id="code" type="text" class="form-control" formControlName="code" required>
+          </div>
+    
+          <div class="form-group mb-3">
+            <label for="designation">Désignation</label>
+            <input id="designation" type="text" class="form-control" formControlName="designation" required>
+          </div>
+    
+          <div class="form-group mb-3">
+            <label for="observation">Observation</label>
+            <input id="observation" type="text" class="form-control" formControlName="observation">
+          </div>
+        <button class="btn btn-primary w-100" type="submit">
+        Modify Competance
+        </button>
+      </form>
+    </div>
+  </ng-template>
+  

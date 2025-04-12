@@ -3,5 +3,6 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/microser" vcs="Git" />
+    <mapping directory="D:/microser" vcs="Git" />
   </component>
 </project>
