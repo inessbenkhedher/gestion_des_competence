@@ -31,6 +31,11 @@
         [scrollbarV]="true" [rows]="filteredEmployees">
         
         <ngx-datatable-column name="Select" [maxWidth]="60">
+          
+
+          <ng-template ngx-datatable-header-template>
+            <input type="checkbox" (change)="toggleSelectAll($event)" [checked]="isAllSelected()" />
+          </ng-template>
           <ng-template ngx-datatable-cell-template let-row="row">
             <input type="checkbox" (change)="toggleSelection(row)" [checked]="selectedEmployees.includes(row)">
           </ng-template>
@@ -85,22 +90,7 @@
     <!-- Étape 1 -->
     <div *ngIf="currentStep === 1">
       <form [formGroup]="step1Form">
-        <div class="form-group">
-          <label for="famille">Famille :</label>
-          <select id="famille" formControlName="famille" class="form-control" (change)="onFamilleSelect($event.target.value)">
-            <option value="" disabled selected>Choisir une famille</option>
-            <option *ngFor="let famille of familles" [value]="famille.id">{{ famille.title }}</option>
-          </select>
-        </div>
-
-        <div class="form-group" *ngIf="indicateurs.length > 0">
-          <label for="indicateur">Indicateur :</label>
-          <select id="indicateur" formControlName="indicateur" class="form-control" (change)="onIndicateurSelect($event.target.value)">
-            <option value="" disabled selected>Choisir un indicateur</option>
-            <option *ngFor="let indicateur of indicateurs" [value]="indicateur.id">{{ indicateur.title }}</option>
-          </select>
-        </div>
-
+        <!-- Competence field only, as others are disabled -->
         <div class="form-group" *ngIf="competences.length > 0">
           <label for="competence">Compétence :</label>
           <select id="competence" formControlName="competence" class="form-control">
@@ -119,10 +109,7 @@
     <!-- Étape 2 -->
 <div *ngIf="currentStep === 2">
   <form [formGroup]="step2Form">
-    <div class="form-group">
-      <label for="date">Date :</label>
-      <input type="date" id="date" formControlName="date" class="form-control" />
-    </div>
+    
 
     <div class="form-group">
       <label for="statut">Statut :</label>

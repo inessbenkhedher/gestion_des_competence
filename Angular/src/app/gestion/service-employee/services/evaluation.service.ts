@@ -51,4 +51,13 @@ export class EvaluationService {
     return this.http.get<string[]>('/api/evaluation/niveaux'); // adapte le path
   }
 
+  getCompetencesByPost(postId : number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/postcompetence/${postId}/competences`).pipe(
+      catchError(error => {
+        console.error('❌ Error fetching competences:', error);
+        return throwError(() => new Error("Erreur lors du chargement des competence"));
+      })
+    );
+  }
+
 }

@@ -104,6 +104,12 @@ export class NavigationService {
                     type: 'link',
                     icon: 'i-Checked-User',
                 },
+                {
+                    name: 'Competences',
+                    state: '/service-evaluation/postCompetence',
+                    type: 'link',
+                    icon: 'i-Data-Settings',
+                }
                
             ]
         }

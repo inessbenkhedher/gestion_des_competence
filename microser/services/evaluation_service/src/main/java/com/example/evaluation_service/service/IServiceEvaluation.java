@@ -15,4 +15,5 @@ public interface IServiceEvaluation {
     public void updateevaluation(Long id,Evaluation evaluation);
     public List<CompetenceWithNiveau> getCompetencesByEmployeeId  (Long employeeId);
     public List<Evaluation> createBulkEvaluations(BulkEvaluationReques request);
+    List<Evaluation> getEvaluationHistory(Long employeeId, Long competenceId);
 }

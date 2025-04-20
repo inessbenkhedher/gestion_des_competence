@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class postdto {
 
+    private Long id;
     private String title;
 
 }

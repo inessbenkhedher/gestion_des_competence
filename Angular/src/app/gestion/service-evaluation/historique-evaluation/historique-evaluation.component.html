@@ -1,0 +1,33 @@
+<div class="breadcrumb">
+    <h1>Historique</h1>
+    <ul>
+      <li><a [routerLink]="['/employee-list']">Employés</a></li>
+      <li>Historique des Évaluations</li>
+    </ul>
+  </div>
+  
+  <div class="separator-breadcrumb border-top"></div>
+  
+  <div class="row mb-4">
+    <div class="col-12">
+      <h4 class="mb-3">Liste des évaluations</h4>
+    </div>
+  </div>
+  
+  <!-- LISTE DES ÉVALUATIONS -->
+  <div class="row">
+    <div class="col-md-12" *ngFor="let eval of history; let i = index">
+      <div class="card mb-3 p-3" >
+        <div class="d-flex flex-column">
+          <h5 class="mb-2">Évaluation du {{ eval.date | date:'dd/MM/yyyy' }}</h5>
+          <p class="mb-1 text-muted">
+            <strong>Niveau :</strong> {{ eval.niveau }} <br>
+            <strong>Statut :</strong> {{ eval.statut }} <br>
+            <strong>Commentaire :</strong> {{ eval.commentaire || '—' }} <br>
+            <strong>Évaluateur :</strong> {{ eval.nomEvaluator || '—' }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  

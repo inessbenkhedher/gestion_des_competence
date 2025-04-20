@@ -97,19 +97,24 @@ public class ServiceEvaluation implements IServiceEvaluation {
     }
 
     @Override
-    public void updateevaluation(Long id, Evaluation evaluation) {
-
-        Evaluation existingEvaluation = er.findById(id)
+    public void updateevaluation(Long oldId, Evaluation newEvaluation) {
+        Evaluation old = er.findById(oldId)
                 .orElseThrow(() -> new RuntimeException("Evaluation Not Found 😡"));
 
-        existingEvaluation.setNiveau(evaluation.getNiveau());
-        existingEvaluation.setStatut(evaluation.getStatut());
-        existingEvaluation.setDate(evaluation.getDate());
-        existingEvaluation.setNomEvaluator(evaluation.getNomEvaluator());
-        existingEvaluation.setCommentaire(evaluation.getCommentaire());
+        // Créer une nouvelle instance au lieu de modifier l'existante
+        Evaluation newEval = new Evaluation();
 
-        er.save(existingEvaluation);
+        newEval.setNiveau(newEvaluation.getNiveau());
+        newEval.setStatut(newEvaluation.getStatut());
+        newEval.setDate(newEvaluation.getDate());
+        newEval.setNomEvaluator(newEvaluation.getNomEvaluator());
+        newEval.setCommentaire(newEvaluation.getCommentaire());
 
+        // Copier les relations
+        newEval.setEmployeeId(old.getEmployeeId());
+        newEval.setCompetenceId(old.getCompetenceId());
+
+        er.save(newEval); // 💾 Nouvelle ligne ajoutée
     }
 
     public List<CompetenceWithNiveau> getCompetencesByEmployeeId(Long employeeId) {
@@ -123,7 +128,8 @@ public class ServiceEvaluation implements IServiceEvaluation {
                     // Créer une nouvelle réponse avec la désignation et le niveau
                     return new CompetenceWithNiveau(
                             evaluation.getId(),
-                            competence.getDesignation(), // Désignation réelle
+                            competence.getDesignation(),
+                            evaluation.getCompetenceId(),// Désignation réelle
                             evaluation.getNomEvaluator(),
                             evaluation.getNiveau().toString(),
                             evaluation.getDate(),
@@ -151,5 +157,10 @@ public class ServiceEvaluation implements IServiceEvaluation {
 
         // Sauvegarde en masse
         return er.saveAll(evaluations);
+    }
+
+    @Override
+    public List<Evaluation> getEvaluationHistory(Long employeeId, Long competenceId) {
+        return er.findByEmployeeIdAndCompetenceIdOrderByDateDesc(employeeId, competenceId);
     }
 }

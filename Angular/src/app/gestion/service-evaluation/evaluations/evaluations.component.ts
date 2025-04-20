@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { EmployeeService } from '../../service-employee/services/employee.service';
 import { EvaluationService } from '../services/evaluation.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -27,7 +27,8 @@ export class EvaluationsComponent implements OnInit {
     private route: ActivatedRoute,
     private evaluationService: EvaluationService,
     private modalService: NgbModal,
-    private keycloakService: KeycloakService
+    private keycloakService: KeycloakService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -45,7 +46,35 @@ export class EvaluationsComponent implements OnInit {
 
   getEvaluations() {
     this.evaluationService.getEvaluationsByEmployeeId(this.employeeId).subscribe(data => {
-      this.evaluations = data as any[];;
+      const allEvals = data as any[];
+  
+      const seenCompetences = new Map<number, any>();
+      const filtered: any[] = [];
+  
+      allEvals.forEach(evaluation => {
+        const compId = evaluation.competenceId; // ✅ correction ici
+        const evalDate = new Date(evaluation.date);
+  
+        if (!seenCompetences.has(compId)) {
+          seenCompetences.set(compId, evaluation);
+          filtered.push(evaluation); // ✅ keep the first one
+        } else {
+          const existingEval = seenCompetences.get(compId);
+          const existingDate = new Date(existingEval.date);
+  
+          if (evalDate > existingDate) {
+            // replace the older one in filtered[]
+            const index = filtered.findIndex(e => e.competenceId === compId);
+            if (index !== -1) {
+              filtered[index] = evaluation;
+            }
+            seenCompetences.set(compId, evaluation);
+          }
+        }
+      });
+  
+      this.evaluations = filtered;
+      console.log("✅ Final evaluations:", this.evaluations);
     });
   }
 
@@ -60,11 +89,13 @@ export class EvaluationsComponent implements OnInit {
     
     this.selectedEvaluation = {
       ...evaluation,
-      date: evaluation.date ? new Date(evaluation.date).toISOString().split('T')[0] : '',
+      
       statut: evaluation.statut || '',
       niveau: evaluation.niveau || '',
       commentaire: evaluation.commentaire || ''
     };
+    const today = new Date().toISOString().split('T')[0]; // Get today’s date in YYYY-MM-DD format
+    this.selectedEvaluation.date = today; // Correct assignment
   
     this.modalService.open(modalRef, { ariaLabelledBy: 'modal-basic-title' });
   }
@@ -91,4 +122,15 @@ export class EvaluationsComponent implements OnInit {
       this.evaluations = this.evaluations.filter(e => e.id !== id);
     });
   }
+
+  goToHistory(evaluation: any) {
+    this.router.navigate([
+      'service-evaluation/employee', 
+      this.employeeId, // 🔥 utilise l’ID déjà récupéré depuis l’URL
+      'competence', 
+      evaluation.competenceId, 
+      'history'
+    ]);
+  }
+  
 }

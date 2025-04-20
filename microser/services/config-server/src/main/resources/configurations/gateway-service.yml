@@ -29,6 +29,10 @@ spring:
           uri: lb://EVALUATION-SERVICE
           predicates:
             - Path=/evaluation/**
+        - id: evaluation-service
+          uri: lb://EVALUATION-SERVICE
+          predicates:
+            - Path=/postcompetence/**
 
 
   security:

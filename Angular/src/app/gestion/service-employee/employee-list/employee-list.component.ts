@@ -7,6 +7,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { EvaluationService } from '../services/evaluation.service';
 import { Router } from '@angular/router';
 import { KeycloakService } from 'src/app/Services/keycloak/keycloak.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-employee-list',
@@ -36,7 +37,8 @@ familles: any[] = [];
     private fb: FormBuilder,
     private cdRef: ChangeDetectorRef,
     private router: Router,
-    private keycloakService: KeycloakService
+    private keycloakService: KeycloakService,
+    private toastr: ToastrService
   ) {
    
   
@@ -56,9 +58,8 @@ ngAfterViewInit() {
       competence: [null, Validators.required]
     });
     this.step1Form = this.fb.group({
-      famille: ['', Validators.required],
-      indicateur: ['', Validators.required],
-      competence: ['', Validators.required],
+      
+      competence: ['', Validators.required]
     });
   
     this.step2Form = this.fb.group({
@@ -72,8 +73,7 @@ ngAfterViewInit() {
       error => console.error('❌ Erreur lors du chargement des niveaux', error)
     );
 
-    this.step1Form.controls['indicateur'].disable();
-this.step1Form.controls['competence'].disable();
+
     this.loadFamilles();
     this.employeeService.getEmployees().subscribe((res: any[]) => {
       this.employees = [...res];
@@ -104,10 +104,39 @@ this.step1Form.controls['competence'].disable();
   }
 
   open(content: any) {
+    if (!this.haveSamePost(this.selectedEmployees)) {
+      // If employees do not have the same post, show an alert
+      this.warningBar('Tous les employés doivent avoir le même poste pour évaluer.');
+      return; // Don't open the modal if employees have different postIds
+    }
+  
+    // Get the postId from the first employee (since all employees have the same post)
+    const postId = this.selectedEmployees[0].post.id;
+  
+    // Fetch competences for the selected postId
+    this.evaluationService.getCompetencesByPost(postId).subscribe(
+      (competences) => {
+        this.competences = competences;
+        // Enable competence dropdown and disable famille & indicateur
+        this.step1Form.controls['competence'].enable();
+      },
+      (error) => {
+        console.error("❌ Error loading competences", error);
+      }
+    );
+  
+    // Reset forms and steps
     this.currentStep = 1;
     this.step1Form.reset();
     this.step2Form.reset();
+
+      // Set today's date on step2Form
+  const today = new Date().toISOString().split('T')[0]; // Get today’s date in YYYY-MM-DD format
+  this.step2Form.patchValue({
+    date: today
+  });
   
+    // Open the modal
     this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then(
       (result) => console.log('Modal closed with:', result),
       (reason) => console.log('Closed with reason:', reason)
@@ -117,6 +146,12 @@ this.step1Form.controls['competence'].disable();
   }
 
 
+  haveSamePost(employees: any[]): boolean {
+    if (employees.length === 0) return false;  // If no employees are selected, return false
+    const postId = employees[0].post.id;  // Get the postId of the first employee from the post object
+    return employees.every(emp => emp.post.id === postId);  // Check if all selected employees have the same postId
+  }
+
   loadFamilles() {
     this.evaluationService.getAllFamilles().subscribe(
       (data) => this.familles = data,
@@ -124,42 +159,8 @@ this.step1Form.controls['competence'].disable();
     );
   }
 
-  onFamilleSelect(familleId: number) {
-    this.indicateurs = [];  // Reset indicators
-    this.competences = [];  // Reset competences
-    this.step1Form.patchValue({ indicateur: null, competence: null });
 
-    if (familleId) {
-      this.evaluationService.getIndicateursByFamille(familleId).subscribe(
-        (data) => {
-          this.indicateurs = data;
-          this.step1Form.controls['indicateur'].enable();
-        },
-        (error) => console.error("❌ Error loading indicateurs", error)
-      );
-    } else {
-      this.step1Form.controls['indicateur'].disable();
-      this.step1Form.controls['competence'].disable();
-    }
-  }
-
-  onIndicateurSelect(indicateurId: number) {
-    this.competences = [];
-    this.step1Form.patchValue({ competence: null });
-
-    if (indicateurId) {
-      this.evaluationService.getCompetencesByIndicateur(indicateurId).subscribe(
-        (data) => {
-          this.competences = data;
-          this.step1Form.controls['competence'].enable();
-        },
-        (error) => console.error("❌ Error loading competences", error)
-      );
-    } else {
-      this.step1Form.controls['competence'].disable();
-    }
-  }
-
+  
 
   onStepNext() {
     if (this.currentStep === 1) {
@@ -263,6 +264,23 @@ this.step1Form.controls['competence'].disable();
     this.router.navigate(['service-evaluation/employee-details', id]);
   }
 
+  warningBar(msg: string) {
+    this.toastr.warning(msg, 'Attention', { timeOut: 2000, closeButton: true, progressBar: true });
+  }
 
+
+  toggleSelectAll(event: any) {
+    const isChecked = event.target.checked;
+  
+    if (isChecked) {
+      this.selectedEmployees = [...this.filteredEmployees];
+    } else {
+      this.selectedEmployees = [];
+    }
+  }
+  
+  isAllSelected(): boolean {
+    return this.selectedEmployees.length === this.filteredEmployees.length && this.filteredEmployees.length > 0;
+  }
 
 }

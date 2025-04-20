@@ -1,0 +1,190 @@
+<div class="breadcrumb">
+    <h1>Postes & Compétences</h1>
+    <ul>
+      <li><a href="">Gestion des Postes</a></li>
+      <li>Postes & Compétences</li>
+    </ul>
+  </div>
+  
+  <div class="separator-breadcrumb border-top"></div>
+  
+  <!-- ADD BUTTON -->
+  <div class="row mb-3">
+    <div class="col-md-12 mb-3">
+      <button class="btn btn-primary float-right" (click)="isEditMode = false; openFormModal(posteCompetenceModal)">➕ Ajouter un Poste & Compétence</button>
+    </div>
+  </div>
+  
+  <!-- POSTE & COMPETENCE TABLE -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card o-hidden">
+        <ngx-datatable
+          class="material fullscreen"
+          style="height: calc(100vh - 270px); box-shadow: none"
+          [columnMode]="'force'"
+          [headerHeight]="50"
+          [footerHeight]="50"
+          [rowHeight]="60"
+          [scrollbarV]="true"
+          [scrollbarH]="true"
+          [limit]="10"
+          [rows]="postCompetences"
+          [(selected)]="selected">
+          
+          <!-- Selection Checkbox -->
+          <ngx-datatable-column name="Select" [width]="50">
+            <ng-template ngx-datatable-cell-template let-row="row">
+              <input type="checkbox" (change)="toggleSelection(row)" [checked]="selected.includes(row)">
+            </ng-template>
+          </ngx-datatable-column>
+  
+          <!-- Poste & Competence Columns -->
+          <ngx-datatable-column name="Poste" prop="posteId">
+            <ng-template ngx-datatable-header-template>Poste</ng-template>
+            <ng-template ngx-datatable-cell-template let-row="row">{{ row.post.title }}</ng-template>
+          </ngx-datatable-column>
+  
+          <ngx-datatable-column name="Compétence" prop="competenceId">
+            <ng-template ngx-datatable-header-template>Compétence</ng-template>
+            <ng-template ngx-datatable-cell-template let-row="row">{{ row.competence.designation }}</ng-template>
+          </ngx-datatable-column>
+  
+          <ngx-datatable-column name="Niveau Requis" prop="niveauRequis">
+            <ng-template ngx-datatable-header-template>Niveau Requis</ng-template>
+            <ng-template ngx-datatable-cell-template let-row="row">{{ row.niveauRequis }}</ng-template>
+          </ngx-datatable-column>
+        </ngx-datatable>
+      </div>
+  
+      <div class="d-flex justify-content-end mt-3">
+        <button class="btn btn-outline-warning m-1" (click)="openEditNiveauModal(editNiveauModal)">✏️ Modifier</button>
+        <button class="btn btn-outline-danger m-1" (click)="handleDelete(confirmModal)">🗑️ Supprimer</button>
+      </div>
+  
+      <!-- Show message when no data -->
+      <div *ngIf="postCompetences.length === 0" class="text-center p-4">
+        <p class="text-muted">⚠️ Aucun poste & compétence trouvé.</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- DELETE CONFIRMATION MODAL -->
+  <ng-template #confirmModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">⚠️ Confirmation</h4>
+      <button type="button" class="close" (click)="modal.dismiss('cancel')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Êtes-vous sûr de vouloir supprimer ce poste & compétence ? Cette action est irréversible.</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss('cancel')">Annuler</button>
+      <button type="button" class="btn btn-danger" (click)="confirmDelete(modal)">Supprimer</button>
+    </div>
+  </ng-template>
+
+
+  
+  <!-- FORM MODAL -->
+  <ng-template #posteCompetenceModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title">Associer une compétence à un poste</h4>
+      <button type="button" class="close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  
+    <div class="modal-body">
+      <!-- Étape 1 -->
+      <div *ngIf="currentStep === 1">
+        <form [formGroup]="step1Form">
+          <div class="form-group">
+            <label>Famille :</label>
+            <select formControlName="famille" class="form-control" (change)="onFamilleSelect($event.target.value)">
+              <option value="" disabled selected>Choisir une famille</option>
+              <option *ngFor="let f of familles" [value]="f.id">{{ f.title }}</option>
+            </select>
+          </div>
+  
+          <div class="form-group" *ngIf="indicateurs.length > 0">
+            <label>Indicateur :</label>
+            <select formControlName="indicateur" class="form-control" (change)="onIndicateurSelect($event.target.value)">
+              <option value="" disabled selected>Choisir un indicateur</option>
+              <option *ngFor="let i of indicateurs" [value]="i.id">{{ i.title }}</option>
+            </select>
+          </div>
+  
+          <div class="form-group" *ngIf="competences.length > 0">
+            <label>Compétence :</label>
+            <select formControlName="competence" class="form-control">
+              <option value="" disabled selected>Choisir une compétence</option>
+              <option *ngFor="let c of competences" [value]="c.id">{{ c.code }}</option>
+            </select>
+          </div>
+        </form>
+  
+        <div class="text-right mt-3">
+          <button class="btn btn-primary" (click)="goToStep(2)" [disabled]="!step1Form.valid">Suivant</button>
+        </div>
+      </div>
+  
+      <!-- Étape 2 -->
+      <div *ngIf="currentStep === 2">
+        <form [formGroup]="step2Form">
+          <div class="form-group">
+            <label>Poste :</label>
+            <select formControlName="poste" class="form-control">
+              <option value="" disabled selected>Choisir un poste</option>
+              <option *ngFor="let p of postes" [value]="p.id">{{ p.title }}</option>
+            </select>
+          </div>
+  
+          <div class="form-group">
+            <label>Niveau Requis :</label>
+            <select formControlName="niveauRequis" class="form-control">
+              <option value="" disabled selected>Choisir un niveau</option>
+              <option *ngFor="let n of niveaux" [value]="n">{{ n }}</option>
+            </select>
+          </div>
+        </form>
+  
+        <div class="d-flex justify-content-between mt-3">
+          <button class="btn btn-secondary" (click)="goToStep(1)">Précédent</button>
+          <button class="btn btn-success" (click)="submitForm(modal)" [disabled]="!step2Form.valid">Soumettre</button>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+  
+  
+  <!-- MODALE DE MODIFICATION DU NIVEAU -->
+  <ng-template #editNiveauModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title">Modifier le niveau requis</h4>
+      <button type="button" class="close" (click)="modal.dismiss()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+    <form [formGroup]="editNiveauForm">
+      <div class="form-group">
+        <label for="niveauRequis" class="col-form-label">Niveau Requis :</label>
+        <select id="niveauRequis" formControlName="niveauRequis" class="form-control">
+          <option value="" disabled selected>Choisir un niveau</option>
+          <option *ngFor="let n of niveaux" [value]="n">{{ n }}</option>
+        </select>
+      </div>
+  
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="modal.dismiss()">Annuler</button>
+        <button class="btn btn-primary" (click)="submitNiveauUpdate(modal)" [disabled]="!editNiveauForm.valid">
+          Sauvegarder
+        </button>
+      </div>
+    </form>
+    </div>
+  </ng-template>
+  

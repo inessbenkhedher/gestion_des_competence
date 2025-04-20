@@ -29,4 +29,8 @@ export class EvaluationService {
   updateEvaluation(id: number, evaluation: any) {
     return this.http.put(`/api/evaluation/${id}`, evaluation);
   }
+
+  getEvaluationHistory(employeeId: number, competenceId: number) {
+    return this.http.get<any[]>(`${this.baseUrl}/evaluation/history/${employeeId}/${competenceId}`);
+  }
 }

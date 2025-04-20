@@ -8,5 +8,6 @@ import java.util.List;
 public interface EvaluationRepository extends JpaRepository<Evaluation,Long> {
 
     List<Evaluation> findByEmployeeId(Long employeeId);
+    List<Evaluation> findByEmployeeIdAndCompetenceIdOrderByDateDesc(Long employeeId, Long competenceId);
 
 }

@@ -61,4 +61,8 @@ public class EvaluationController {
         return Niveau_Possible.values();
     }
 
+    @GetMapping("/history/{employeeId}/{competenceId}")
+    public List<Evaluation> getEvaluationHistory(@PathVariable Long employeeId, @PathVariable Long competenceId) {
+        return serviceEvaluation.getEvaluationHistory(employeeId, competenceId);
+    }
 }

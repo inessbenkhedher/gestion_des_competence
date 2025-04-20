@@ -2,6 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { NavigationService } from "../../../services/navigation.service";
 import { SearchService } from "../../../services/search.service";
 import { AuthService } from "../../../services/auth.service";
+import { KeycloakService } from "src/app/Services/keycloak/keycloak.service";
 
 @Component({
   selector: "app-header-sidebar-compact",
@@ -14,7 +15,8 @@ export class HeaderSidebarCompactComponent implements OnInit {
   constructor(
     private navService: NavigationService,
     public searchService: SearchService,
-    private auth: AuthService
+    private auth: AuthService,
+    private keycloakService: KeycloakService
   ) {
     this.notifications = [
       {
@@ -72,6 +74,6 @@ export class HeaderSidebarCompactComponent implements OnInit {
   }
 
   signout() {
-    this.auth.signout();
+    this.keycloakService.logout();
   }
 }
