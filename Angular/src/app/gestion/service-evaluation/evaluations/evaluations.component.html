@@ -1,18 +1,41 @@
 <div class="row">
-    <!-- 🧍‍♂️ Card Employee à gauche -->
-    <div class="col-md-6">
-      <div class="card card-profile-1 mb-4">
-        <div class="card-body text-center">
-          <h5 class="m-0">{{ employee?.nom }} {{ employee?.prenom }}</h5>
-          <p class="mt-0">{{ employee?.post?.title }}</p>
-          <p>Email: {{ employee?.email }}</p>
-          <p>Téléphone: {{ employee?.telephone }}</p>
-          <p>Date Embauche: {{ employee?.dateEmbauche | date: 'dd/MM/yyyy' }}</p>
-          <p>Date Naissance: {{ employee?.dateNaissance | date: 'dd/MM/yyyy' }}</p>
+  <!-- 🧍‍♂️ Colonne gauche : Profil + Alerte IA -->
+  <div class="col-md-6">
+    <!-- 🔹 Carte Profil Employé -->
+    <div class="card card-profile-1 mb-3 shadow-sm border-info">
+      <div class="card-body text-center">
+        <h5 class="m-0 text-primary">{{ employee?.nom }} {{ employee?.prenom }}</h5>
+        <p class="text-muted mb-2">{{ employee?.post?.title }}</p>
+        <p>Email : {{ employee?.email }}</p>
+        <p>Téléphone : {{ employee?.telephone }}</p>
+        <p>Date Embauche : {{ employee?.dateEmbauche | date: 'dd/MM/yyyy' }}</p>
+        <p>Date Naissance : {{ employee?.dateNaissance | date: 'dd/MM/yyyy' }}</p>
+      </div>
+    </div>
+
+    <!-- 🧠 Carte d’Alerte IA -->
+    <div class="card border-warning bg-light mb-4 shadow-sm" *ngIf="competencesFaibles.length > 0 || competencesNonEvaluees.length > 0">
+      <div class="card-body">
+        <h5 class="card-title text-warning">⚠️ Risques détectés</h5>
+
+        <div *ngIf="competencesFaibles.length > 0">
+          <p class="mb-1"><strong>Compétences avec écart critique :</strong></p>
+          <ul class="mb-2">
+            <li *ngFor="let c of competencesFaibles">
+              {{ c.designation }} → Actuel : <strong>{{ c.niveau_actuel }}</strong>, Requis : <strong>{{ c.niveau_requis }}</strong>
+            </li>
+          </ul>
+        </div>
+
+        <div *ngIf="competencesNonEvaluees.length > 0">
+          <p class="mb-1"><strong>Compétences non évaluées :</strong></p>
+          <ul>
+            <li *ngFor="let c of competencesNonEvaluees">{{ c.designation }}</li>
+          </ul>
         </div>
       </div>
     </div>
-  
+  </div>
     <!-- 📝 Card Évaluations à droite -->
     <div class="col-md-6">
       <div class="card mb-4">
@@ -32,10 +55,11 @@
             </p>
           </div>
           <div>
-            <button class="btn btn-warning btn-sm me-1"
+            <button class="btn btn-outline-warning btn-sm me-1"
                     (click)="openEditModal(eval, modalEdit); $event.stopPropagation()">✏️ Modifier</button>
-            <button class="btn btn-danger btn-sm"
-                    (click)="deleteEvaluation(eval.id); $event.stopPropagation()">🗑️ Supprimer</button>
+            <button class="btn btn-outline-danger btn-sm"
+                    (click)="openDeleteModal(eval.id, modalConfirm); $event.stopPropagation()">🗑️ Supprimer</button>
+            
           </div>
         </div>
           
@@ -72,3 +96,20 @@
     </div>
   </ng-template>
   
+
+  <!-- DELETE CONFIRMATION MODAL -->
+<ng-template #modalConfirm let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">⚠️ Confirmation</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('cancel')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>Êtes-vous sûr de vouloir supprimer cette <strong>évaluation</strong> ? Cette action est irréversible.</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss('cancel')">Annuler</button>
+    <button type="button" class="btn btn-danger" (click)="confirmDelete(modal)">Supprimer</button>
+  </div>
+</ng-template>

@@ -8,4 +8,5 @@ public class Employee {
     private String matricule;
     private String nom;
     private String prenom;
+    private Post post;
 }

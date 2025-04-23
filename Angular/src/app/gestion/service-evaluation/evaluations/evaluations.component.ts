@@ -15,6 +15,8 @@ export class EvaluationsComponent implements OnInit {
   employee: any;
   evaluations: any[] = [];
 
+  deleteEvaluationId: number | null = null;
+
   selectedEvaluation: any = {
     date: '',
     statut: '',
@@ -22,6 +24,8 @@ export class EvaluationsComponent implements OnInit {
     commentaire: ''
   };
   niveaux: string[] = [];
+  competencesFaibles: any[] = [];
+competencesNonEvaluees: any[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -36,7 +40,25 @@ export class EvaluationsComponent implements OnInit {
     this.getEmployeeDetails();
     this.getEvaluations();
     this.getNiveaux();
+    this.analyseProfilIA();
   }
+
+  analyseProfilIA() {
+    this.evaluationService.getProfilIA(this.employeeId).subscribe((profil: any) => {
+      const niveaux = ["DEBUTANT", "INTERMEDIAIRE", "AVANCE", "EXPERT"];
+      const niveauIndex = (niveau: string) => niveaux.indexOf(niveau);
+  
+      this.competencesFaibles = profil.competences.filter(c => 
+        niveauIndex(c.niveau_requis) - niveauIndex(c.niveau_actuel) >= 2
+      );
+  
+      this.evaluationService.getCompetencesByPostId(profil.poste_id).subscribe((allRequired: any[]) => {
+        const evalueesIds = profil.competences.map((c: any) => c.competence_id);
+        this.competencesNonEvaluees = allRequired.filter(c => !evalueesIds.includes(c.id));
+      });
+    });
+  }
+  
 
   getEmployeeDetails() {
     this.evaluationService.getEmployeeById(this.employeeId).subscribe(data => {
@@ -122,6 +144,30 @@ export class EvaluationsComponent implements OnInit {
       this.evaluations = this.evaluations.filter(e => e.id !== id);
     });
   }
+
+
+   openDeleteModal(id: number, modalContent: any) {
+      this.deleteEvaluationId = id;
+      this.modalService.open(modalContent, { ariaLabelledBy: 'modal-basic-title', centered: true });
+    }
+  
+    confirmDelete(modal: any) {
+      if (this.deleteEvaluationId !== null) {
+        this.evaluationService.deleteEvaluation(this.deleteEvaluationId).subscribe({
+          next: () => {
+            console.log(`🗑️ Famille ${this.deleteEvaluationId} supprimée`);
+            this.evaluations = this.evaluations.filter(f => f.id !== this.deleteEvaluationId);
+            modal.close('deleted');
+            this.deleteEvaluationId = null;
+          },
+          error: (err) => {
+            console.error('❌ Error deleting famille:', err);
+            modal.dismiss('error');
+          }
+        });
+      }
+    }
+  
 
   goToHistory(evaluation: any) {
     this.router.navigate([

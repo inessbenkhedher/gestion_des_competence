@@ -1,10 +1,7 @@
 package com.example.evaluation_service.Controller;
 
 
-import com.example.evaluation_service.DTO.BulkEvaluationReques;
-import com.example.evaluation_service.DTO.Competence;
-import com.example.evaluation_service.DTO.CompetenceWithNiveau;
-import com.example.evaluation_service.DTO.EvaluationDto;
+import com.example.evaluation_service.DTO.*;
 import com.example.evaluation_service.Entities.Evaluation;
 import com.example.evaluation_service.Entities.Niveau_Possible;
 import com.example.evaluation_service.service.IServiceEvaluation;
@@ -50,10 +47,11 @@ public class EvaluationController {
         return serviceEvaluation.getCompetencesByEmployeeId(employeeId);
     }
 
-    @PostMapping("/bulk-assign")
-    public ResponseEntity<List<Evaluation>> assignCompetenceToEmployees(@RequestBody BulkEvaluationReques request) {
-        List<Evaluation> evaluations = serviceEvaluation.createBulkEvaluations(request);
-        return ResponseEntity.ok(evaluations);
+    @PostMapping("/bulk-evaluate")
+    public ResponseEntity<List<Evaluation>> bulkEvaluate(
+            @RequestBody BulkEvaluationReques request) {
+        List<Evaluation> created = serviceEvaluation.createBulkEvaluations(request);
+        return ResponseEntity.ok(created);
     }
 
     @GetMapping("/niveaux")
@@ -64,5 +62,10 @@ public class EvaluationController {
     @GetMapping("/history/{employeeId}/{competenceId}")
     public List<Evaluation> getEvaluationHistory(@PathVariable Long employeeId, @PathVariable Long competenceId) {
         return serviceEvaluation.getEvaluationHistory(employeeId, competenceId);
+    }
+
+    @GetMapping("/profil-ia/{employeeId}")
+    public ProfilEmployeeDto getProfilForIA(@PathVariable Long employeeId) {
+        return serviceEvaluation.buildProfilForIA(employeeId);
     }
 }

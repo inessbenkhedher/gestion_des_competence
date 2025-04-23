@@ -29,6 +29,8 @@ familles: any[] = [];
   step1Form: FormGroup;
   step2Form: FormGroup;
   niveaux: string[] = [];
+  posts: any[] = []; 
+  selectedPostId: string = '';
 
   constructor(
     private employeeService: EmployeeService,
@@ -57,8 +59,8 @@ ngAfterViewInit() {
       employees: [[], Validators.required], // ou null selon ton besoin
       competence: [null, Validators.required]
     });
+  
     this.step1Form = this.fb.group({
-      
       competence: ['', Validators.required]
     });
   
@@ -72,6 +74,7 @@ ngAfterViewInit() {
       data => this.niveaux = data,
       error => console.error('❌ Erreur lors du chargement des niveaux', error)
     );
+    this.getPosts();
 
 
     this.loadFamilles();
@@ -92,6 +95,29 @@ ngAfterViewInit() {
     ).subscribe(filteredResults => {
       this.filteredEmployees = filteredResults;
     });
+  }
+
+  getPosts() {
+    this.evaluationService.getAllPosts().subscribe({
+      next: (data) => this.posts = data,
+      error: (err) => console.error("❌ Erreur lors du chargement des postes", err)
+    });
+  }
+
+  goToBulkEvaluation() {
+    const ids = this.selectedEmployeeIds.join(',');
+    this.router.navigate(['service-employee/evaluation'], { queryParams: { ids }});
+  }
+
+  filterByPost(postId: string) {
+    this.selectedPostId = postId;
+  
+    if (!postId || postId === '') {
+      this.filteredEmployees = [...this.employees]; // 🟢 Réinitialiser à tous les employés
+      return;
+    }
+  
+    this.filteredEmployees = this.employees.filter(e => e.post?.id == postId);
   }
 
   toggleSelection(employee: any) {

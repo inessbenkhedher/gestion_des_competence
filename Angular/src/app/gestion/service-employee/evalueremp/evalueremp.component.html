@@ -1,0 +1,82 @@
+<div class="breadcrumb">
+    <h1>Evaluation</h1>
+    <ul>
+      <li><a href="">Employee</a></li>
+      <li>Competences</li>
+    </ul>
+  </div>
+  <div class="separator-breadcrumb border-top"></div>
+  
+  <!-- Le formulaire entier -->
+  <div class="card p-4">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+  
+      <!-- Sélecteur Employé hors de la carte -->
+      <div class="form-group mb-4">
+        <label>Employé</label>
+        <select
+            formControlName="employee"
+            class="form-control"
+            >
+        <option value="" disabled >Sélectionner</option>
+          <option *ngFor="let e of employees" [value]="e.id">
+            {{ e.nom }} {{ e.prenom }}
+          </option>
+        </select>
+      </div>
+  
+      <!-- Date pré‐remplie aujourd’hui -->
+      <div class="form-group mb-3">
+        <label>Date</label>
+        <input type="date" formControlName="date" class="form-control" />
+      </div>
+  
+      <!-- Tableau compétences × niveaux -->
+      <div *ngIf="competences.length; else noComp">
+        <h5>Compétences</h5>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Compétence</th>
+              <th *ngFor="let niv of niveaux">{{ niv }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let comp of competences">
+              <td>{{ comp.code }} – {{ comp.designation }}</td>
+              <td *ngFor="let niv of niveaux" class="text-center">
+                <input
+                  type="radio"
+                  [name]="'comp-'+comp.id"
+                  [value]="niv"
+                  (change)="selectedLevels[comp.id] = niv"
+                  [checked]="selectedLevels[comp.id] === niv"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #noComp>
+        <p class="text-muted">
+          Sélectionne d’abord un employé pour voir ses compétences.
+        </p>
+      </ng-template>
+  
+      <!-- Commentaire sous le tableau -->
+      <div class="form-group mb-4">
+        <label>Commentaire</label>
+        <textarea formControlName="commentaire" class="form-control" rows="3"></textarea>
+      </div>
+  
+      <!-- Bouton désactivé si pas de compétences ou form invalide -->
+      <button
+        type="submit"
+        class="btn btn-success"
+        [disabled]="form.invalid || competences.length === 0"
+      >
+        Enregistrer
+      </button>
+    </form>
+  </div>
+  

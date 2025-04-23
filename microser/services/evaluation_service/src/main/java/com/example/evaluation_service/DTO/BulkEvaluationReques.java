@@ -10,9 +10,8 @@ import java.util.List;
 @Data
 public class BulkEvaluationReques {
 
-    private List<Long> employeeIds;  // Liste des employés sélectionnés
-    private Long competenceId;       // Compétence affectée
-    private String statut;           // Statut de l'évaluation (ex: "En Cours", "Validée")
+    private Long employeeId;  // Liste des employés sélectionnés
+    private List<CompetenceLevel> competenceLevels;      // Compétence affectée
     private String commentaire;
     private String nomEvaluator;// Commentaire global
     private Niveau_Possible niveau;  // Niveau attribué

@@ -44,7 +44,7 @@ export class EvaluationService {
 
   // Bulk Assign Evaluation
   bulkAssignEvaluation(request: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/evaluation/bulk-assign`, request);
+    return this.http.post<any>(`${this.apiUrl}/evaluation/bulk-evaluate`, request);
   }
 
   getNiveaux() {
@@ -58,6 +58,10 @@ export class EvaluationService {
         return throwError(() => new Error("Erreur lors du chargement des competence"));
       })
     );
+  }
+
+  getAllPosts(): Observable<any> {
+    return this.http.get('/api/posts'); // adapte l’URL selon ton backend
   }
 
 }

@@ -27,10 +27,18 @@ export class EvaluationService {
     return this.http.get<string[]>(`${this.baseUrl}/evaluation/niveaux`); // adapte le path
   }
   updateEvaluation(id: number, evaluation: any) {
-    return this.http.put(`/api/evaluation/${id}`, evaluation);
+    return this.http.put(`${this.baseUrl}/evaluation/${id}`, evaluation);
   }
 
   getEvaluationHistory(employeeId: number, competenceId: number) {
     return this.http.get<any[]>(`${this.baseUrl}/evaluation/history/${employeeId}/${competenceId}`);
+  }
+
+  getProfilIA(employeeId: number) {
+    return this.http.get(`${this.baseUrl}/evaluation/profil-ia/${employeeId}`);
+  }
+  
+  getCompetencesByPostId(postId: number) {
+    return this.http.get(`${this.baseUrl}/postcompetence/${postId}/competences`);
   }
 }

@@ -2,16 +2,20 @@ package com.example.evaluation_service.service;
 
 import com.example.evaluation_service.DTO.*;
 import com.example.evaluation_service.Entities.Evaluation;
+import com.example.evaluation_service.Entities.PosteCompetence;
 import com.example.evaluation_service.Feign.CompetenceFeignClient;
 import com.example.evaluation_service.Feign.EmployeeFeignClient;
 import com.example.evaluation_service.Reoisitory.EvaluationRepository;
+import com.example.evaluation_service.Reoisitory.PostCompetenceRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -20,6 +24,7 @@ import java.util.stream.Collectors;
 public class ServiceEvaluation implements IServiceEvaluation {
 
     private EvaluationRepository er;
+    private PostCompetenceRepository posteCompetenceRepository;
 
     private EmployeeFeignClient employeeClient; // Feign Client for Employee
     private CompetenceFeignClient competenceClient;
@@ -141,26 +146,81 @@ public class ServiceEvaluation implements IServiceEvaluation {
                 .collect(Collectors.toList());
     }
 
-    public List<Evaluation> createBulkEvaluations(BulkEvaluationReques request) {
-        // Créer une évaluation pour chaque employé
-        List<Evaluation> evaluations = request.getEmployeeIds().stream().map(employeeId ->
-                Evaluation.builder()
-                        .date(request.getDate())
-                        .statut(request.getStatut())
-                        .commentaire(request.getCommentaire())
-                        .niveau(request.getNiveau())
-                        .nomEvaluator(request.getNomEvaluator())
-                        .competenceId(request.getCompetenceId())
-                        .employeeId(employeeId)
-                        .build()
-        ).collect(Collectors.toList());
+    public List<Evaluation> createBulkEvaluations(BulkEvaluationReques req) {
+        List<Evaluation> evals = new ArrayList<>();
+        for (CompetenceLevel cl : req.getCompetenceLevels()) {
+            evals.add(Evaluation.builder()
+                    .employeeId(req.getEmployeeId())
+                    .competenceId(cl.getCompetenceId())
+                    .niveau(cl.getNiveau())
 
-        // Sauvegarde en masse
-        return er.saveAll(evaluations);
+                    .commentaire(req.getCommentaire())
+                    .nomEvaluator(req.getNomEvaluator())
+                    .date(req.getDate())
+                    .build());
+        }
+
+        return er.saveAll(evals);
     }
 
     @Override
     public List<Evaluation> getEvaluationHistory(Long employeeId, Long competenceId) {
         return er.findByEmployeeIdAndCompetenceIdOrderByDateDesc(employeeId, competenceId);
     }
+
+
+
+
+    public ProfilEmployeeDto buildProfilForIA(Long employeeId) {
+        Employee employee = employeeClient.getEmployeeById(employeeId);
+        Long posteId = employee.getPost().getId();
+
+        List<Evaluation> evaluations = er.findByEmployeeId(employeeId);
+        List<PosteCompetence> posteCompetences = posteCompetenceRepository.findByPosteId(posteId);
+
+        Map<Long, ProfilCompetenceDto> competenceMap = new HashMap<>();
+
+        for (Evaluation e : evaluations) {
+            PosteCompetence pc = posteCompetences.stream()
+                    .filter(p -> p.getCompetenceId().equals(e.getCompetenceId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (pc != null) {
+                ProfilCompetenceDto existing = competenceMap.get(e.getCompetenceId());
+
+                // On garde le niveau le plus élevé (ex: INTERMEDIAIRE > DEBUTANT)
+                if (existing == null || isHigherLevel(e.getNiveau().toString(), existing.getNiveau_actuel())) {
+                    ProfilCompetenceDto dto = new ProfilCompetenceDto();
+                    dto.setCompetence_id(e.getCompetenceId());
+                    dto.setDesignation(competenceClient.getCompetenceById(e.getCompetenceId()).getDesignation());
+                    dto.setNiveau_actuel(e.getNiveau().toString());
+                    dto.setNiveau_requis(
+                            pc.getNiveauRequis() != null ? pc.getNiveauRequis().toString() : "NON_DEFINI"
+                    );
+
+                    competenceMap.put(e.getCompetenceId(), dto);
+                }
+            }
+        }
+
+        ProfilEmployeeDto result = new ProfilEmployeeDto();
+        result.setEmployee_id(employeeId);
+        result.setPoste_id(posteId);
+        result.setCompetences(new ArrayList<>(competenceMap.values()));
+        return result;
+    }
+
+    private boolean isHigherLevel(String newLevel, String currentLevel) {
+        List<String> levels = List.of("DEBUTANT", "INTERMEDIAIRE", "AVANCE", "EXPERT");
+        return levels.indexOf(newLevel) > levels.indexOf(currentLevel);
+    }
+
+
+
+
+
+
+
+
 }

@@ -36,6 +36,7 @@ public class PosteCompetenceController {
     public List<Competence> getCompetencesByPost(@PathVariable Long posteId) {
         return service.getCompetencesByPostId(posteId);
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePosteCompetence(@PathVariable Long id) {
         try {

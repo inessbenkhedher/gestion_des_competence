@@ -21,8 +21,10 @@ export class EmployeeService {
         return throwError(() => new Error("Erreur lors du chargement des employee"));
       })
     );
-  
-  
+  }
+
+  getEmployeeById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
 
   searchEmployeesByPost(searchTerm: string): Observable<any[]> {

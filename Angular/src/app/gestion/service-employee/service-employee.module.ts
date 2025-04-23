@@ -6,11 +6,13 @@ import { EmployeeListComponent } from './employee-list/employee-list.component';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormWizardModule } from "../../shared/components/form-wizard/form-wizard.module";
+import { EvaluerempComponent } from './evalueremp/evalueremp.component';
 
 
 @NgModule({
   declarations: [
-    EmployeeListComponent
+    EmployeeListComponent,
+    EvaluerempComponent
   ],
   imports: [
     CommonModule,
