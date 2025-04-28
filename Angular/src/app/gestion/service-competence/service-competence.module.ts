@@ -7,6 +7,7 @@ import { ListIndicateursComponent } from './list-indicateurs/list-indicateurs.co
 import { ListFamillesComponent } from './list-familles/list-familles.component';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { ListCompetancesComponent } from './list-competances/list-competances.component';
+import { AjoutcompetenceComponent } from './ajoutcompetence/ajoutcompetence.component';
 
 
 @NgModule({
@@ -14,7 +15,8 @@ import { ListCompetancesComponent } from './list-competances/list-competances.co
     
     ListIndicateursComponent,
     ListFamillesComponent,
-    ListCompetancesComponent
+    ListCompetancesComponent,
+    AjoutcompetenceComponent
   ],
   imports: [
     CommonModule,

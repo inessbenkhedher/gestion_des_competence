@@ -2,6 +2,7 @@ package com.example.evaluation_service.Controller;
 
 
 import com.example.evaluation_service.DTO.Competence;
+import com.example.evaluation_service.DTO.PosteCompetenceRequest;
 import com.example.evaluation_service.Entities.PosteCompetence;
 import com.example.evaluation_service.service.IServicePostCompetence;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,7 @@ public class PosteCompetenceController {
     private IServicePostCompetence service;
 
     @PostMapping
-    public void create(@RequestBody PosteCompetence pc) {
+    public void create(@RequestBody PosteCompetenceRequest pc) {
         service.add(pc);
     }
 

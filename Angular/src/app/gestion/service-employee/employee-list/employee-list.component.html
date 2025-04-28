@@ -8,6 +8,7 @@
           <li>table des Employees </li>
         </ul>
       </div>
+      <div class="separator-breadcrumb border-top"></div>
       <div class="form-group">
         <label for="postFilter">Filtrer par poste :</label>
         <select id="postFilter" class="form-control" (change)="filterByPost($event.target.value)">
@@ -41,6 +42,15 @@
           </ng-template>
           <ng-template ngx-datatable-cell-template let-row="row">
             <input type="checkbox" (change)="toggleSelection(row)" [checked]="selectedEmployees.includes(row)">
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column name="État" [width]="80">
+          <ng-template ngx-datatable-cell-template let-row="row">
+            <span *ngIf="employeeStatuses[row.id] === 'loading'">⏳</span>
+            <span *ngIf="employeeStatuses[row.id] === 'rouge'">🔴</span>
+            <span *ngIf="employeeStatuses[row.id] === 'orange'">🟠</span>
+            <span *ngIf="employeeStatuses[row.id] === 'vert'">🟢</span>
           </ng-template>
         </ngx-datatable-column>
   

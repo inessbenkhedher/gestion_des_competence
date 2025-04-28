@@ -18,5 +18,7 @@ public interface IServiceCompetence {
     public void updatecompetence(Long id, Competence competence);
     public void exportCompetencesToExcel(HttpServletResponse response) throws IOException;
     public List<Competence> getCompetencesByIndicateurId(Long indicateurId);
+    void addCompetencesToIndicateur(Long indicateurId, List<CompetenceDto> competences);
+
 
 }

@@ -38,6 +38,22 @@ public class ServiceCompetence implements IServiceCompetence{
     }
 
     @Override
+    public void addCompetencesToIndicateur(Long indicateurId, List<CompetenceDto> competences) {
+        Indicateur indicateur = ir.findById(indicateurId)
+                .orElseThrow(() -> new RuntimeException("Indicateur non trouvé"));
+
+        for (CompetenceDto dto : competences) {
+            Competence competence = Competence.builder()
+                    .code(dto.getCode())
+                    .designation(dto.getDesignation())
+                    .observatin(dto.getObservatin()) // (ou dto.getObservation() si tu corriges)
+                    .indicateur(indicateur)
+                    .build();
+            cr.save(competence);
+        }
+    }
+
+    @Override
     public Competence getcompetence(Long id) {
         return cr.findById(id).get();
     }

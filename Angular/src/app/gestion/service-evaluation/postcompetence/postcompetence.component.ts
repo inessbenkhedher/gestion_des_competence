@@ -4,6 +4,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { PostcomptenceService } from '../services/postcomptence.service';
 import { ToastrService } from 'ngx-toastr';
 import { EvaluationService } from '../../service-employee/services/evaluation.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-postcompetence',
@@ -34,6 +35,7 @@ export class PostcompetenceComponent implements OnInit {
     private evaluationService: EvaluationService,
     private modalService: NgbModal,
     private fb: FormBuilder,
+    private router: Router,
     private toastr: ToastrService
   ) { this.editNiveauForm = this.fb.group({
     niveauRequis: ['', [Validators.required]]  // Assure-toi que niveauRequis est bien initialisé
@@ -196,6 +198,10 @@ export class PostcompetenceComponent implements OnInit {
     } else {
       this.selected = [row];
     }
+  }
+
+  goToCreatenew() {
+    this.router.navigate(['service-evaluation/new']);
   }
 
   warningBar(msg: string) {

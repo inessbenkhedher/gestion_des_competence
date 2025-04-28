@@ -8,6 +8,7 @@ import { MatriceComponent } from './matrice/matrice.component';
 import { PostcompetenceComponent } from './postcompetence/postcompetence.component';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { HistoriqueEvaluationComponent } from './historique-evaluation/historique-evaluation.component';
+import { AjoutPostCompetenceComponent } from './ajout-post-competence/ajout-post-competence.component';
 
 
 @NgModule({
@@ -15,7 +16,8 @@ import { HistoriqueEvaluationComponent } from './historique-evaluation/historiqu
     EvaluationsComponent,
     MatriceComponent,
     PostcompetenceComponent,
-    HistoriqueEvaluationComponent
+    HistoriqueEvaluationComponent,
+    AjoutPostCompetenceComponent
   ],
   imports: [
     CommonModule,

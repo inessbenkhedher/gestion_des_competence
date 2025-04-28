@@ -64,4 +64,8 @@ export class EvaluationService {
     return this.http.get('/api/posts'); // adapte l’URL selon ton backend
   }
 
+  getProfilIA(employeeId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/evaluation/profil-ia/${employeeId}`);
+  }
+
 }

@@ -41,4 +41,9 @@ export class EvaluationService {
   getCompetencesByPostId(postId: number) {
     return this.http.get(`${this.baseUrl}/postcompetence/${postId}/competences`);
   }
+  getCompetenceById(competenceId: number) {
+    return this.http.get(`/api/competences/${competenceId}`);
+  }
+
+
 }

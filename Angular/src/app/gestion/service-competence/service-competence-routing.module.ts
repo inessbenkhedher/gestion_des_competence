@@ -4,6 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { ListIndicateursComponent } from './list-indicateurs/list-indicateurs.component';
 import { ListFamillesComponent } from './list-familles/list-familles.component';
 import { ListCompetancesComponent } from './list-competances/list-competances.component';
+import { AjoutcompetenceComponent } from './ajoutcompetence/ajoutcompetence.component';
 
 
 const routes: Routes = [
@@ -12,6 +13,7 @@ const routes: Routes = [
  
   
   { path: 'competences', component: ListCompetancesComponent },
+  { path: 'competence/new', component: AjoutcompetenceComponent },
 
   {
     path: 'indicateurs',component: ListIndicateursComponent

@@ -9,4 +9,5 @@ public class ProfilEmployeeDto {
     private Long employee_id;
     private Long poste_id;
     private List<ProfilCompetenceDto> competences;
+    private boolean hasNoEvaluations;
 }

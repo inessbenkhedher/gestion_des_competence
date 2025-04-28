@@ -74,18 +74,17 @@ competencesNonEvaluees: any[] = [];
       const filtered: any[] = [];
   
       allEvals.forEach(evaluation => {
-        const compId = evaluation.competenceId; // ✅ correction ici
+        const compId = evaluation.competenceId;
         const evalDate = new Date(evaluation.date);
   
         if (!seenCompetences.has(compId)) {
           seenCompetences.set(compId, evaluation);
-          filtered.push(evaluation); // ✅ keep the first one
+          filtered.push(evaluation);
         } else {
           const existingEval = seenCompetences.get(compId);
           const existingDate = new Date(existingEval.date);
   
           if (evalDate > existingDate) {
-            // replace the older one in filtered[]
             const index = filtered.findIndex(e => e.competenceId === compId);
             if (index !== -1) {
               filtered[index] = evaluation;
@@ -95,8 +94,14 @@ competencesNonEvaluees: any[] = [];
         }
       });
   
+      // 🔄 Maintenant on enrichit chaque évaluation avec sa compétence
+      filtered.forEach(evaluation => {
+        this.evaluationService.getCompetenceById(evaluation.competenceId).subscribe(competence => {
+          evaluation.competence = competence;
+        });
+      });
+  
       this.evaluations = filtered;
-      console.log("✅ Final evaluations:", this.evaluations);
     });
   }
 
@@ -177,6 +182,11 @@ competencesNonEvaluees: any[] = [];
       evaluation.competenceId, 
       'history'
     ]);
+  }
+
+  goToBulkEvaluation() {
+    const ids = this.employeeId;
+    this.router.navigate(['service-employee/evaluation'], { queryParams: { ids }});
   }
   
 }

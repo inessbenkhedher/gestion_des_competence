@@ -47,6 +47,18 @@ export class ListIndicateursComponent implements OnInit {
     // Adaptez le chemin selon votre routing
 }
 
+AddCompetence() {
+  if (this.selected.length !== 1) {
+    this.warningBar('Veuillez sélectionner un seul indicateur pour ajouter une compétence.');
+    return;
+  }
+
+  const selectedIndicateur = this.selected[0];
+  if (selectedIndicateur && selectedIndicateur.id) {
+    // ✅ Rediriger avec l'ID de l'indicateur
+    this.router.navigate(['/service-competence/competence/new'], { queryParams: { indicateurId: selectedIndicateur.id } });
+  }
+}
 
  
 openIndicateurModal(content: any, editData?: any) {

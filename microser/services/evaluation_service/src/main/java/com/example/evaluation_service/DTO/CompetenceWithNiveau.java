@@ -13,7 +13,7 @@ import java.util.Date;
 public class CompetenceWithNiveau {
 
     private Long id;
-    private String designation;
+    private String code;
     private Long competenceId;
     private String nomEvaluator;
     private String niveau;

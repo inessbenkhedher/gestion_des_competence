@@ -11,7 +11,7 @@
   <!-- ADD BUTTON -->
   <div class="row mb-3">
     <div class="col-md-12 mb-3">
-      <button class="btn btn-primary float-right" (click)="isEditMode = false; openFormModal(posteCompetenceModal)">➕ Ajouter un Poste & Compétence</button>
+      <button class="btn btn-primary float-right"  (click)="goToCreatenew() ">➕ Ajouter un Poste & Compétence</button>
     </div>
   </div>
   
@@ -87,78 +87,7 @@
   </ng-template>
 
 
-  
-  <!-- FORM MODAL -->
-  <ng-template #posteCompetenceModal let-modal>
-    <div class="modal-header">
-      <h4 class="modal-title">Associer une compétence à un poste</h4>
-      <button type="button" class="close" (click)="modal.dismiss('Cross click')">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-  
-    <div class="modal-body">
-      <!-- Étape 1 -->
-      <div *ngIf="currentStep === 1">
-        <form [formGroup]="step1Form">
-          <div class="form-group">
-            <label>Famille :</label>
-            <select formControlName="famille" class="form-control" (change)="onFamilleSelect($event.target.value)">
-              <option value="" disabled selected>Choisir une famille</option>
-              <option *ngFor="let f of familles" [value]="f.id">{{ f.title }}</option>
-            </select>
-          </div>
-  
-          <div class="form-group" *ngIf="indicateurs.length > 0">
-            <label>Indicateur :</label>
-            <select formControlName="indicateur" class="form-control" (change)="onIndicateurSelect($event.target.value)">
-              <option value="" disabled selected>Choisir un indicateur</option>
-              <option *ngFor="let i of indicateurs" [value]="i.id">{{ i.title }}</option>
-            </select>
-          </div>
-  
-          <div class="form-group" *ngIf="competences.length > 0">
-            <label>Compétence :</label>
-            <select formControlName="competence" class="form-control">
-              <option value="" disabled selected>Choisir une compétence</option>
-              <option *ngFor="let c of competences" [value]="c.id">{{ c.code }}</option>
-            </select>
-          </div>
-        </form>
-  
-        <div class="text-right mt-3">
-          <button class="btn btn-primary" (click)="goToStep(2)" [disabled]="!step1Form.valid">Suivant</button>
-        </div>
-      </div>
-  
-      <!-- Étape 2 -->
-      <div *ngIf="currentStep === 2">
-        <form [formGroup]="step2Form">
-          <div class="form-group">
-            <label>Poste :</label>
-            <select formControlName="poste" class="form-control">
-              <option value="" disabled selected>Choisir un poste</option>
-              <option *ngFor="let p of postes" [value]="p.id">{{ p.title }}</option>
-            </select>
-          </div>
-  
-          <div class="form-group">
-            <label>Niveau Requis :</label>
-            <select formControlName="niveauRequis" class="form-control">
-              <option value="" disabled selected>Choisir un niveau</option>
-              <option *ngFor="let n of niveaux" [value]="n">{{ n }}</option>
-            </select>
-          </div>
-        </form>
-  
-        <div class="d-flex justify-content-between mt-3">
-          <button class="btn btn-secondary" (click)="goToStep(1)">Précédent</button>
-          <button class="btn btn-success" (click)="submitForm(modal)" [disabled]="!step2Form.valid">Soumettre</button>
-        </div>
-      </div>
-    </div>
-  </ng-template>
-  
+ 
   
   <!-- MODALE DE MODIFICATION DU NIVEAU -->
   <ng-template #editNiveauModal let-modal>

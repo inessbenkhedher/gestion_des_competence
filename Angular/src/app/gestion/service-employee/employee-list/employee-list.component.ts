@@ -31,6 +31,7 @@ familles: any[] = [];
   niveaux: string[] = [];
   posts: any[] = []; 
   selectedPostId: string = '';
+  employeeStatuses: { [key: number]: string } = {};
 
   constructor(
     private employeeService: EmployeeService,
@@ -81,6 +82,23 @@ ngAfterViewInit() {
     this.employeeService.getEmployees().subscribe((res: any[]) => {
       this.employees = [...res];
       this.filteredEmployees = res;
+      console.log(this.filteredEmployees);
+      
+    });
+    this.employeeService.getEmployees().subscribe((res: any[]) => {
+      this.employees = [...res];
+      this.filteredEmployees = res;
+    
+      // ✅ Appeler ici, une fois qu'on a bien les employés
+      this.filteredEmployees.forEach(e => {
+        this.employeeStatuses[e.id] = "loading";
+        this.getEmployeeStatus(e.id).then(status => {
+          this.employeeStatuses[e.id] = status;
+        }).catch(error => {
+          console.error(`Erreur statut ${e.id}`, error);
+          this.employeeStatuses[e.id] = "rouge";
+        });
+      });
     });
 
     // Listen to search input changes and fetch filtered employees
@@ -95,6 +113,41 @@ ngAfterViewInit() {
     ).subscribe(filteredResults => {
       this.filteredEmployees = filteredResults;
     });
+
+  
+  }
+
+  async getEmployeeStatus(employeeId: number): Promise<"rouge" | "orange" | "vert"> {
+    try {
+      const profil = await this.evaluationService.getProfilIA(employeeId).toPromise();
+      console.log(profil); // Ajoutez ceci pour voir les données du profil
+      const niveaux = ["DEBUTANT", "INTERMEDIAIRE", "AVANCE", "EXPERT"];
+      const niveauIndex = (niveau: string) => niveaux.indexOf(niveau);
+  
+      if (!profil.competences || profil.competences.length === 0) {
+        return "rouge"; // aucune évaluation
+      }
+  
+      const hasGap = profil.competences.some((c: any) =>
+        niveauIndex(c.niveau_requis) - niveauIndex(c.niveau_actuel) >= 2
+      );
+  
+      const allRequired = await this.evaluationService.getCompetencesByPost(profil.poste_id).toPromise();
+      const evalueesIds = profil.competences.map((c: any) => c.competence_id);
+      const nonEvaluees = allRequired.filter((c: any) => !evalueesIds.includes(c.id));
+  
+      if (hasGap || nonEvaluees.length > 0) {
+        return "orange";
+      }
+      if (profil.hasNoEvaluations) {
+        return "rouge"; // ou 🔴
+      }
+  
+      return "vert";
+    } catch (error) {
+      console.error("Erreur IA", error);
+      return "rouge"; // fallback
+    }
   }
 
   getPosts() {

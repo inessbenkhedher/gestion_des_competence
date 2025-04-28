@@ -1,3 +1,23 @@
+<div class="breadcrumb">
+  <h1>Employee</h1>
+  <ul>
+      <li><a href="">Employee Details</a></li>
+      <li>Evaluations</li>
+  </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<!-- ADD BUTTON -->
+<div class="row mb-3">
+  <div class="col-md-12">
+      <button class="btn btn-primary float-right" (click)="goToBulkEvaluation()">
+          evaluer
+        </button>
+  </div>
+</div>
+
+
 <div class="row">
   <!-- 🧍‍♂️ Colonne gauche : Profil + Alerte IA -->
   <div class="col-md-6">
@@ -45,11 +65,10 @@
             class="d-flex align-items-center border-bottom-dotted-dim pb-3 mb-3 evaluation-card"
             (click)="goToHistory(eval)">
           <div class="flex-grow-1">
-            <h6 class="m-0">{{ eval.competence?.nom }}</h6>
+            <h4 class="m-0">{{ eval.competence?.code }}</h4>
             <p class="m-0 text-small text-muted">
               Date: {{ eval.date ? (eval.date | date: 'dd/MM/yyyy') : '—' }} <br>
               Niveau: {{ eval.niveau }} <br>
-              Statut: {{ eval.statut }} <br>
               Commentaire: {{ eval.commentaire }}<br>
               Évaluateur : {{ eval.nomEvaluator || '—' }}
             </p>

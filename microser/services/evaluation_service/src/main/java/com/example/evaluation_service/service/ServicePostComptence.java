@@ -2,6 +2,9 @@ package com.example.evaluation_service.service;
 
 
 import com.example.evaluation_service.DTO.Competence;
+import com.example.evaluation_service.DTO.CompetenceLevel;
+import com.example.evaluation_service.DTO.CompetenceWithNiveau;
+import com.example.evaluation_service.DTO.PosteCompetenceRequest;
 import com.example.evaluation_service.Entities.PosteCompetence;
 import com.example.evaluation_service.Feign.CompetenceFeignClient;
 import com.example.evaluation_service.Feign.EmployeeFeignClient;
@@ -9,6 +12,7 @@ import com.example.evaluation_service.Reoisitory.PostCompetenceRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -18,10 +22,19 @@ public class ServicePostComptence implements IServicePostCompetence{
     private EmployeeFeignClient postFeignClient;
     private CompetenceFeignClient competenceFeignClient;
 
-    @Override
-    public void add(PosteCompetence pc) {
-        pcr.save(pc);
+    public void add(PosteCompetenceRequest request) {
+        List<PosteCompetence> entities = new ArrayList<>();
 
+        for (CompetenceLevel c : request.getCompetences()) {
+            PosteCompetence pc = PosteCompetence.builder()
+                    .posteId(request.getPosteId())
+                    .competenceId(c.getCompetenceId())
+                    .niveauRequis(c.getNiveau())
+                    .build();
+            entities.add(pc);
+        }
+
+        pcr.saveAll(entities); // sauvegarde en masse
     }
 
     @Override

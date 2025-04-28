@@ -21,8 +21,8 @@ export class PostcomptenceService {
     return this.http.get<any[]>(`${this.baseUrl}/${postId}`);
   }
 
-  add(postCompetence: any) {
-    return this.http.post(`${this.baseUrl}`, postCompetence);
+  add(postCompetenceRequest: any) {
+    return this.http.post('/api/postcompetence', postCompetenceRequest);
   }
 
   update(id: number, postCompetence: any) {

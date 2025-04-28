@@ -133,7 +133,7 @@ public class ServiceEvaluation implements IServiceEvaluation {
                     // Créer une nouvelle réponse avec la désignation et le niveau
                     return new CompetenceWithNiveau(
                             evaluation.getId(),
-                            competence.getDesignation(),
+                            competence.getCode(),
                             evaluation.getCompetenceId(),// Désignation réelle
                             evaluation.getNomEvaluator(),
                             evaluation.getNiveau().toString(),
@@ -189,7 +189,6 @@ public class ServiceEvaluation implements IServiceEvaluation {
             if (pc != null) {
                 ProfilCompetenceDto existing = competenceMap.get(e.getCompetenceId());
 
-                // On garde le niveau le plus élevé (ex: INTERMEDIAIRE > DEBUTANT)
                 if (existing == null || isHigherLevel(e.getNiveau().toString(), existing.getNiveau_actuel())) {
                     ProfilCompetenceDto dto = new ProfilCompetenceDto();
                     dto.setCompetence_id(e.getCompetenceId());
@@ -208,8 +207,13 @@ public class ServiceEvaluation implements IServiceEvaluation {
         result.setEmployee_id(employeeId);
         result.setPoste_id(posteId);
         result.setCompetences(new ArrayList<>(competenceMap.values()));
+
+        // 🆕 Ajout du flag "aucune évaluation"
+        result.setHasNoEvaluations(evaluations == null || evaluations.isEmpty());
+
         return result;
     }
+
 
     private boolean isHigherLevel(String newLevel, String currentLevel) {
         List<String> levels = List.of("DEBUTANT", "INTERMEDIAIRE", "AVANCE", "EXPERT");

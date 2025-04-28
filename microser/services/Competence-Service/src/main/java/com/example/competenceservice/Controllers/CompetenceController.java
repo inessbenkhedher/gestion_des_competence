@@ -27,6 +27,10 @@ public class CompetenceController {
     public Competence getCompetence(@PathVariable Long id) {
         return serviceCompetence.getcompetence(id);
     }
+    @PostMapping("/bulk/{indicateurId}")
+    public void addCompetences(@PathVariable Long indicateurId, @RequestBody List<CompetenceDto> competences) {
+        serviceCompetence.addCompetencesToIndicateur(indicateurId, competences);
+    }
 
     @GetMapping
     public List<Competence> getAllCompetences() {

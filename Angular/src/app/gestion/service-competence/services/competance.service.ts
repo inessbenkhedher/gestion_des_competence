@@ -25,6 +25,10 @@ export class CompetanceService {
       );
     }
 
+    bulkAddCompetences(indicateurId: string, competences: any[]): Observable<any> {
+      return this.http.post(`${this.apiUrl}/bulk/${indicateurId}`, competences);
+    }
+
   getAllCompetences(): Observable<any> {
     return this.http.get(this.apiUrl).pipe(
       catchError(error => {
