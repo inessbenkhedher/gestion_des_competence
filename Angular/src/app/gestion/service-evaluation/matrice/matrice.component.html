@@ -23,14 +23,20 @@
   
       <!-- Barre de recherche (droite) -->
       <div class="col-md-6 form-group">
-        <label for="search"><strong>Recherche :</strong></label>
-        <input id="search"
-               placeholder="Search Employees"
-               [formControl]="searchControl"
-               class="form-control form-control-rounded"
-               type="text">
+        <label for="postSelect"><strong>Poste :</strong></label>
+        <select id="postSelect"
+                [(ngModel)]="selectedPostId"
+                (change)="onPostChange()"
+                class="form-control form-control-rounded">
+          <option [value]="null" disabled selected>Sélectionner un poste</option>
+          <option *ngFor="let post of posts" [value]="post.id">{{ post.title }}</option>
+        </select>
       </div>
-    </div>
+      <div class="col-md-12 text-end mt-2" *ngIf="selectedPostId">
+        <button class="btn btn-success" (click)="exportPostEvaluationExcel()">
+          📥 Exporter les évaluations Excel
+        </button>
+      </div>
   
     <!-- Placeholder matrice -->
     <div class="mt-4 text-muted text-center border rounded p-4">

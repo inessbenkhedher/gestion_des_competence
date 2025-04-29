@@ -1,7 +1,9 @@
 package com.example.evaluation_service.service;
 import com.example.evaluation_service.DTO.*;
 import com.example.evaluation_service.Entities.Evaluation;
+import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface IServiceEvaluation {
@@ -14,4 +16,5 @@ public interface IServiceEvaluation {
     public List<Evaluation> createBulkEvaluations(BulkEvaluationReques request);
     List<Evaluation> getEvaluationHistory(Long employeeId, Long competenceId);
     public ProfilEmployeeDto buildProfilForIA(Long employeeId);
+    public void exportEvaluationByPost(Long postId, HttpServletResponse response) throws IOException;
 }

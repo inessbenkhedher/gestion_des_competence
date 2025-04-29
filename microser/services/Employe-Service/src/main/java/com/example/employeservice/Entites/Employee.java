@@ -28,6 +28,7 @@ public class Employee {
     private String adresse;
     private Date dateNaissance;
     private Date dateEmbauche;
+    private String service;
 
 
     @ManyToOne

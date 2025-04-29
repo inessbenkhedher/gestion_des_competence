@@ -32,6 +32,9 @@ familles: any[] = [];
   posts: any[] = []; 
   selectedPostId: string = '';
   employeeStatuses: { [key: number]: string } = {};
+  showSelectionColumn: boolean = false;
+  etatFilter: string | null = null;
+
 
   constructor(
     private employeeService: EmployeeService,
@@ -56,25 +59,37 @@ ngAfterViewInit() {
 
   ngOnInit() {
 
+      // Recherche avec délai
+      this.searchControl.valueChanges.pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(searchTerm =>
+          searchTerm.trim()
+            ? this.employeeService.getEmployeeByNom(searchTerm)
+            : this.employeeService.getEmployees()
+        )
+      ).subscribe(filteredResults => {
+        this.filteredEmployees = filteredResults;
+      
+        // ✅ Logique de vérif si tous ont le même post.id
+        if (filteredResults.length > 0) {
+          const firstPostId = filteredResults[0]?.post?.id;
+          const samePost = filteredResults.every(emp => emp.post?.id === firstPostId);
+          this.showSelectionColumn = samePost;
+          this.selectedPostId = samePost ? firstPostId : '';
+        } else {
+          this.showSelectionColumn = false;
+          this.selectedPostId = '';
+        }
+      });
+
+
     this.selectionForm = this.fb.group({
       employees: [[], Validators.required], // ou null selon ton besoin
       competence: [null, Validators.required]
     });
   
-    this.step1Form = this.fb.group({
-      competence: ['', Validators.required]
-    });
-  
-    this.step2Form = this.fb.group({
-      date: ['', Validators.required],
-      statut: ['', Validators.required],
-      commentaire: [''],
-      niveau: ['', Validators.required]
-    });
-    this.evaluationService.getNiveaux().subscribe(
-      data => this.niveaux = data,
-      error => console.error('❌ Erreur lors du chargement des niveaux', error)
-    );
+
     this.getPosts();
 
 
@@ -115,6 +130,41 @@ ngAfterViewInit() {
     });
 
   
+  }
+
+  filterByEtat(etat: 'rouge' | 'orange' | 'vert') {
+    this.etatFilter = etat;
+    this.applyAllFilters();
+  }
+  
+  clearEtatFilter() {
+    this.etatFilter = null;
+    this.applyAllFilters();
+  }
+
+  applyAllFilters() {
+    this.filteredEmployees = this.employees.filter(emp => {
+      const postMatch = !this.selectedPostId || emp.post?.id == this.selectedPostId;
+      const etatMatch = !this.etatFilter || this.employeeStatuses[emp.id] === this.etatFilter;
+      const searchTerm = this.searchControl.value?.toLowerCase() || '';
+      const nameMatch = `${emp.nom} ${emp.prenom}`.toLowerCase().includes(searchTerm);
+      return postMatch && etatMatch && nameMatch;
+    });
+  }
+
+
+  exportEmployeesToExcel() {
+    this.employeeService.exportEmployees().subscribe({
+      next: (response) => {
+        const blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = 'Employees.xlsx'; // File name
+        link.click();
+        console.log('✅ Export success!');
+      },
+      error: (err) => console.error('❌ Export failed:', err)
+    });
   }
 
   async getEmployeeStatus(employeeId: number): Promise<"rouge" | "orange" | "vert"> {
@@ -182,48 +232,7 @@ ngAfterViewInit() {
     }
   }
 
-  open(content: any) {
-    if (!this.haveSamePost(this.selectedEmployees)) {
-      // If employees do not have the same post, show an alert
-      this.warningBar('Tous les employés doivent avoir le même poste pour évaluer.');
-      return; // Don't open the modal if employees have different postIds
-    }
-  
-    // Get the postId from the first employee (since all employees have the same post)
-    const postId = this.selectedEmployees[0].post.id;
-  
-    // Fetch competences for the selected postId
-    this.evaluationService.getCompetencesByPost(postId).subscribe(
-      (competences) => {
-        this.competences = competences;
-        // Enable competence dropdown and disable famille & indicateur
-        this.step1Form.controls['competence'].enable();
-      },
-      (error) => {
-        console.error("❌ Error loading competences", error);
-      }
-    );
-  
-    // Reset forms and steps
-    this.currentStep = 1;
-    this.step1Form.reset();
-    this.step2Form.reset();
-
-      // Set today's date on step2Form
-  const today = new Date().toISOString().split('T')[0]; // Get today’s date in YYYY-MM-DD format
-  this.step2Form.patchValue({
-    date: today
-  });
-  
-    // Open the modal
-    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then(
-      (result) => console.log('Modal closed with:', result),
-      (reason) => console.log('Closed with reason:', reason)
-    );
-  
-    setTimeout(() => this.cdRef.detectChanges());
-  }
-
+ 
 
   haveSamePost(employees: any[]): boolean {
     if (employees.length === 0) return false;  // If no employees are selected, return false
@@ -239,26 +248,7 @@ ngAfterViewInit() {
   }
 
 
-  
 
-  onStepNext() {
-    if (this.currentStep === 1) {
-      this.step1Form.markAllAsTouched();
-      if (this.step1Form.invalid) {
-        alert('Veuillez remplir tous les champs du premier formulaire.');
-        return;
-      }
-      this.currentStep = 2; // passe à l'étape 2
-    } else if (this.currentStep === 2) {
-      this.step2Form.markAllAsTouched();
-      if (this.step2Form.invalid) {
-        alert('Veuillez remplir tous les champs du deuxième formulaire.');
-        return;
-      }
-      console.log('✔️ Tout est valide, prêt à soumettre');
-      // Tu peux maintenant appeler submitForm();
-    }
-  }
 
   get selectedEmployeeIds(): number[] {
     return this.selectedEmployees.map(e => e.id);
@@ -269,73 +259,11 @@ ngAfterViewInit() {
   }
 
 
-  isStep1Valid(): boolean {
-    return this.evaluationForm.get('famille')?.valid &&
-           this.evaluationForm.get('indicateur')?.valid &&
-           this.evaluationForm.get('competence')?.valid;
-  }
-
-
-
-  goToStep(step: number): void {
-    this.currentStep = step;
-  }
 
 
 
 
-
-  submitEvaluation() {
-    if (!this.step1Form || !this.step2Form) {
-      console.error("Les formulaires ne sont pas initialisés.");
-      return;
-    }
-
-    const firstName = this.keycloakService.profile?.firstName || '';
-    const lastName = this.keycloakService.profile?.lastName || '';
-    const nomEvaluator = `${firstName} ${lastName}`.trim();
   
-    const competenceControl = this.step1Form.get('competence');
-    const dateControl = this.step2Form.get('date');
-  
-    if (!competenceControl || !dateControl) {
-      console.error("Certains contrôles de formulaire sont manquants.");
-      return;
-    }
-  
-    const competenceId = competenceControl.value;
-    const date = dateControl.value;
-  
-    if (!competenceId || !date) {
-      console.warn("Compétence ou date manquante.");
-      return;
-    }
-  
-    // Convert date string to Date object, then to ISO string
-    const formattedDate = new Date(date).toISOString();
-  
-    // Prepare the bulk evaluation data
-    const bulkEvaluationData = {
-      employeeIds: this.selectedEmployees.map(e => e.id), // An array of selected employee IDs
-      competenceId,
-      statut: this.step2Form.value.statut,
-      commentaire: this.step2Form.value.commentaire,
-      niveau: this.step2Form.value.niveau,
-      date: formattedDate, // Send the date as ISO string
-      nomEvaluator: nomEvaluator
-    };
-  
-    // Call the bulk evaluation API
-    this.evaluationService.bulkAssignEvaluation(bulkEvaluationData).subscribe(
-      response => {
-        console.log("✅ Évaluation soumise avec succès", response);
-        this.modalService.dismissAll(); // Close the modal
-      },
-      error => {
-        console.error("❌ Erreur lors de la soumission de l’évaluation", error);
-      }
-    );
-  }
 
 
 

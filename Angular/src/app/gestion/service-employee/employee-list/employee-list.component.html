@@ -1,32 +1,49 @@
-<!-- Bouton Évaluer en haut à droite -->
-<div class="row d-flex align-items-center">
-    <div class="col-md-4">
-      <div class="breadcrumb">
-        <h1>Employees</h1>
-        <ul>
-         
-          <li>table des Employees </li>
-        </ul>
-      </div>
-      <div class="separator-breadcrumb border-top"></div>
-      <div class="form-group">
-        <label for="postFilter">Filtrer par poste :</label>
+
+    <div class="breadcrumb">
+      <h1>Employees</h1>
+      <ul>
+        <li>table des Employees</li>
+      </ul>
+    </div>
+    <div class="separator-breadcrumb border-top"></div>
+  
+    
+    <div class="row align-items-end mb-4">
+      <!-- Filtres -->
+      <div class="col-lg-3 col-md-4 col-sm-6 mb-2">
+        <label for="postFilter" class="form-label">Filtrer par poste :</label>
         <select id="postFilter" class="form-control" (change)="filterByPost($event.target.value)">
-          <option value="" >Tous les postes</option>
+          <option value="">Tous les postes</option>
           <option *ngFor="let post of posts" [value]="post.id">{{ post.title }}</option>
         </select>
       </div>
+    
+      <div class="col-lg-3 col-md-4 col-sm-6 mb-2">
+        <label for="searchInput" class="form-label">Rechercher :</label>
+        <input type="text" id="searchInput" class="form-control" placeholder="Rechercher..." [formControl]="searchControl">
+      </div>
+    
+      <div class="col-lg-4 col-md-6 col-sm-12 mb-2">
+        <label class="form-label d-block">Filtrer par état :</label>
+        <div class="btn-group" role="group">
+          <button class="btn btn-light" (click)="filterByEtat('vert')">🟢</button>
+          <button class="btn btn-light" (click)="filterByEtat('orange')">🟠</button>
+          <button class="btn btn-light" (click)="filterByEtat('rouge')">🔴</button>
+          <button class="btn btn-outline-secondary" (click)="clearEtatFilter()">❌</button>
+        </div>
+      </div>
+    
+      <!-- Bouton Évaluer bien aligné -->
+      <div class="col-lg-2 col-md-3 col-sm-12 text-end mb-2">
+        <button class="btn btn-primary w-100" (click)="goToBulkEvaluation()" [hidden]="selectedEmployees.length === 0">
+          Évaluer
+        </button>
+        <button class="btn btn-success w-100" (click)="exportEmployeesToExcel()">
+          Exporter
+        </button>
+      </div>
     </div>
-  
-    <div class="col-md-8 text-right">
-      <button class="btn btn-primary" (click)="goToBulkEvaluation()" [hidden]="selectedEmployees.length === 0">
-        Évaluer
-      </button>
-    </div>
-  </div>
-  
- 
-  
+
   <!-- Tableau des employés -->
   <div class="col-md-12">
     <div class="card o-hidden">
@@ -34,7 +51,7 @@
         [columnMode]="'force'" [headerHeight]="50" [footerHeight]="50" [rowHeight]="60" 
         [scrollbarV]="true" [rows]="filteredEmployees">
         
-        <ngx-datatable-column name="Select" [maxWidth]="60" *ngIf="selectedPostId">
+        <ngx-datatable-column name="Select" [maxWidth]="60" *ngIf="selectedPostId || showSelectionColumn">
           
 
           <ng-template ngx-datatable-header-template>
@@ -75,6 +92,12 @@
         <ngx-datatable-column name="Post">
           <ng-template ngx-datatable-cell-template let-row="row">
             {{ row.post?.title }}
+          </ng-template>
+        </ngx-datatable-column>
+        
+        <ngx-datatable-column name="Service" [width]="200">
+          <ng-template ngx-datatable-cell-template let-row="row">
+            {{ row.service }} 
           </ng-template>
         </ngx-datatable-column>
 

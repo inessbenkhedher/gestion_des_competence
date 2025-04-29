@@ -5,10 +5,12 @@ import com.example.evaluation_service.DTO.*;
 import com.example.evaluation_service.Entities.Evaluation;
 import com.example.evaluation_service.Entities.Niveau_Possible;
 import com.example.evaluation_service.service.IServiceEvaluation;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @AllArgsConstructor
@@ -67,5 +69,10 @@ public class EvaluationController {
     @GetMapping("/profil-ia/{employeeId}")
     public ProfilEmployeeDto getProfilForIA(@PathVariable Long employeeId) {
         return serviceEvaluation.buildProfilForIA(employeeId);
+    }
+
+    @GetMapping("/export/{postId}")
+    public void exportEvaluationByPost(@PathVariable Long postId, HttpServletResponse response) throws IOException {
+        serviceEvaluation.exportEvaluationByPost(postId, response);
     }
 }

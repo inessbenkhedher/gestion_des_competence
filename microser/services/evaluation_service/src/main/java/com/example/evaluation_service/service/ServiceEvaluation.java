@@ -7,10 +7,16 @@ import com.example.evaluation_service.Feign.CompetenceFeignClient;
 import com.example.evaluation_service.Feign.EmployeeFeignClient;
 import com.example.evaluation_service.Reoisitory.EvaluationRepository;
 import com.example.evaluation_service.Reoisitory.PostCompetenceRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -168,7 +174,64 @@ public class ServiceEvaluation implements IServiceEvaluation {
         return er.findByEmployeeIdAndCompetenceIdOrderByDateDesc(employeeId, competenceId);
     }
 
+    public void exportEvaluationByPost(Long postId, HttpServletResponse response) throws IOException {
+        // 🔹 Récupérer les compétences du poste
+        List<PosteCompetence> posteCompetences = posteCompetenceRepository.findByPosteId(postId);
+        List<Long> competenceIds = posteCompetences.stream().map(PosteCompetence::getCompetenceId).toList();
+        List<Competence> competences = competenceIds.stream()
+                .map(competenceClient::getCompetenceById)
+                .toList();
 
+        // 🔹 Récupérer les employés ayant ce poste
+        List<Employee> employees = employeeClient.getAllEmployees().stream()
+                .filter(e -> e.getPost() != null && e.getPost().getId().equals(postId))
+                .toList();
+
+        // 🔹 Récupérer toutes les évaluations
+        List<Evaluation> allEvaluations = er.findAll();
+
+        // 🔹 Création du fichier Excel
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Évaluations");
+
+        // 🔸 En-têtes
+        Row header = sheet.createRow(0);
+        header.createCell(0).setCellValue("Matricule");
+        header.createCell(1).setCellValue("Nom Complet");
+        for (int i = 0; i < competences.size(); i++) {
+            header.createCell(i + 2).setCellValue(competences.get(i).getCode());
+        }
+
+        // 🔸 Remplir lignes
+        int rowIndex = 1;
+        for (Employee emp : employees) {
+            Row row = sheet.createRow(rowIndex++);
+            row.createCell(0).setCellValue(emp.getMatricule());
+            row.createCell(1).setCellValue(emp.getNom() + " " + emp.getPrenom());
+
+            for (int i = 0; i < competences.size(); i++) {
+                Long compId = competences.get(i).getId();
+
+                // Chercher évaluation de cet employé pour cette compétence
+                Evaluation eval = allEvaluations.stream()
+                        .filter(e -> e.getEmployeeId().equals(emp.getId()) && e.getCompetenceId().equals(compId))
+                        .findFirst()
+                        .orElse(null);
+
+                row.createCell(i + 2).setCellValue(eval != null ? eval.getNiveau().toString() : "❌");
+            }
+        }
+
+        for (int i = 0; i < competences.size() + 2; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // 🔹 Config HTTP response
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=evaluations_post_" + postId + ".xlsx");
+        workbook.write(response.getOutputStream());
+        workbook.close();
+    }
 
 
     public ProfilEmployeeDto buildProfilForIA(Long employeeId) {

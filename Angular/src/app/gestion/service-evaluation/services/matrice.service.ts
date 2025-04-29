@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -66,6 +66,27 @@ export class MatriceService {
       catchError(error => {
         console.error('❌ Error fetching evaluation:', error);
         return throwError(() => new Error("Erreur lors du chargement des evaluation"));
+      })
+    );
+  }
+  getAllPosts(): Observable<any[]> {
+    return this.http.get<any[]>('/api/posts'); // change if needed
+  }
+
+  exportExcelByPost(postId: number) {
+    const token = this.keycloakService.token;
+    if (!token) {
+      return throwError(() => new Error('Utilisateur non authentifié'));
+    }
+  
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+  
+    return this.http.get(`/api/evaluation/export/${postId}`, { headers, responseType: 'blob' }).pipe(
+      catchError(error => {
+        console.error('❌ Error exporting competences:', error);
+        return throwError(() => new Error("Erreur lors de l'export des compétences"));
       })
     );
   }

@@ -16,8 +16,10 @@ export class MatriceComponent implements OnInit {
 competencesGroupedByIndicateur: any = {}; // { idIndicateur: [compétences] }
 employees: any[] = [];
 evaluations: any[] = [];
+posts: any[] = [];
+selectedPostId: number | null = null;
  
-  filteredEmployees: unknown;
+filteredEmployees: any[] = [];
 
   constructor(private matriceService: MatriceService) {}
 
@@ -30,23 +32,40 @@ evaluations: any[] = [];
         console.error('Erreur lors du chargement des familles', err);
       }
     });
-
-    this.matriceService.getEmployees().subscribe(data => {
-      this.filteredEmployees = data;
+    this.matriceService.getAllPosts().subscribe(data => {
+      this.posts = data;
     });
 
+ 
+
     this.searchControl.valueChanges.pipe(
-          debounceTime(300),  // Avoids too many API calls
-          distinctUntilChanged(),
-          switchMap(searchTerm => 
-            searchTerm.trim() 
-              ? this.matriceService.searchEmployeesByPost(searchTerm) 
-              : this.matriceService.getEmployees()  // If empty, fetch all employees
-          )
-        ).subscribe(filteredResults => {
-          this.filteredEmployees = filteredResults;
-        });
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(() => this.applyFilters());
+    
+    this.matriceService.getAllPosts().subscribe(data => this.posts = data);
+    this.matriceService.getEmployees().subscribe(data => {
+      this.employees = data;
+      this.applyFilters();
+    });
   }
+  applyFilters() {
+    this.matriceService.getEmployees().subscribe(employees => {
+      this.employees = employees;
+  
+      this.filteredEmployees = employees.filter(emp => {
+        const matchPost = !this.selectedPostId || emp.post?.id === +this.selectedPostId;
+        const searchTerm = this.searchControl.value?.toLowerCase() || '';
+        const matchSearch =
+          emp.nom?.toLowerCase().includes(searchTerm) ||
+          emp.prenom?.toLowerCase().includes(searchTerm) ||
+          emp.matricule?.toLowerCase().includes(searchTerm);
+  
+        return matchPost && (!searchTerm || matchSearch);
+      });
+    });
+  }
+
   onFamilleChange() {
     if (!this.selectedFamilleId) return;
   
@@ -84,7 +103,28 @@ evaluations: any[] = [];
       return '❌';
     }
   }
+  onPostChange() {
+    this.applyFilters();
+  }
   
+
+  exportPostEvaluationExcel() {
+    if (!this.selectedPostId) return;
   
+    this.matriceService.exportExcelByPost(this.selectedPostId).subscribe({
+      next: (blob: Blob) => {
+        const a = document.createElement('a');
+        const objectUrl = window.URL.createObjectURL(blob);
+        a.href = objectUrl;
+        a.download = `evaluation_post_${this.selectedPostId}.xlsx`;
+        a.click();
+        window.URL.revokeObjectURL(objectUrl);
+      },
+      error: (err) => {
+        console.error('❌ Export échoué:', err);
+        alert("Erreur lors de l'export du fichier.");
+      }
+    });
+  }
 
 }

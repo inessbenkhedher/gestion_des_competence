@@ -27,12 +27,29 @@ export class EmployeeService {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
 
+  getEmployeeByNom(searchTerm : String): Observable<any> {
+    if (!searchTerm.trim()) {
+      return this.getEmployees(); // If search is empty, return all employees
+    }
+    return this.http.get<any>(`${this.apiUrl}/parNom?mc=${searchTerm}`);
+  }
+
   searchEmployeesByPost(searchTerm: string): Observable<any[]> {
     if (!searchTerm.trim()) {
       return this.getEmployees(); // If search is empty, return all employees
     }
 
     return this.http.get<any[]>(`${this.apiUrl}/byPost?mc=${searchTerm}`);
+  }
+
+  exportEmployees(): Observable<Blob> {
+
+    return this.http.get(`${this.apiUrl}/export`, {  responseType: 'blob' }).pipe(
+      catchError(error => {
+        console.error('❌ Error exporting competences:', error);
+        return throwError(() => new Error("Erreur lors de l'export des compétences"));
+      })
+    );
   }
 
   }
