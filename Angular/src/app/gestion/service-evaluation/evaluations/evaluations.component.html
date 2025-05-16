@@ -14,6 +14,9 @@
       <button class="btn btn-primary float-right" (click)="goToBulkEvaluation()">
           evaluer
         </button>
+          <button class="btn btn-info m-1 " (click)="goToEmployeeDashboard()">
+    dashboard
+  </button>
   </div>
 </div>
 
@@ -42,7 +45,7 @@
           <p class="mb-1"><strong>Compétences avec écart critique :</strong></p>
           <ul class="mb-2">
             <li *ngFor="let c of competencesFaibles">
-              {{ c.designation }} → Actuel : <strong>{{ c.niveau_actuel }}</strong>, Requis : <strong>{{ c.niveau_requis }}</strong>
+              {{ c.code }} → Actuel : <strong>{{ c.niveau_actuel }}</strong>, Requis : <strong>{{ c.niveau_requis }}</strong>
             </li>
           </ul>
         </div>
@@ -50,7 +53,7 @@
         <div *ngIf="competencesNonEvaluees.length > 0">
           <p class="mb-1"><strong>Compétences non évaluées :</strong></p>
           <ul>
-            <li *ngFor="let c of competencesNonEvaluees">{{ c.designation }}</li>
+            <li *ngFor="let c of competencesNonEvaluees">{{ c.code }}</li>
           </ul>
         </div>
       </div>
@@ -96,10 +99,7 @@
     <div class="modal-body">
       <form (ngSubmit)="submitEdit(modal)">
        
-        <div class="mb-3">
-          <label class="form-label">Statut</label>
-          <input type="text" [(ngModel)]="selectedEvaluation.statut" name="statut" class="form-control">
-        </div>
+      
         <div class="mb-3">
           <label class="form-label">Niveau</label>
           <select [(ngModel)]="selectedEvaluation.niveau" name="niveau" class="form-control">

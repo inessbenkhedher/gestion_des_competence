@@ -7,19 +7,23 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormWizardModule } from "../../shared/components/form-wizard/form-wizard.module";
 import { EvaluerempComponent } from './evalueremp/evalueremp.component';
+import { EmployeeDashboardComponent } from './employee-dashboard/employee-dashboard.component';
+import { NgxEchartsModule } from 'ngx-echarts';
 
 
 @NgModule({
   declarations: [
     EmployeeListComponent,
-    EvaluerempComponent
+    EvaluerempComponent,
+    EmployeeDashboardComponent
   ],
   imports: [
     CommonModule,
     NgxDatatableModule,
     ReactiveFormsModule,
     ServiceEmployeeRoutingModule,
-    FormWizardModule
+    FormWizardModule,
+    NgxEchartsModule
 ]
 })
 export class ServiceEmployeeModule { }

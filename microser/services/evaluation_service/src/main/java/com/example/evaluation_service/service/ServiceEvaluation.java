@@ -255,7 +255,7 @@ public class ServiceEvaluation implements IServiceEvaluation {
                 if (existing == null || isHigherLevel(e.getNiveau().toString(), existing.getNiveau_actuel())) {
                     ProfilCompetenceDto dto = new ProfilCompetenceDto();
                     dto.setCompetence_id(e.getCompetenceId());
-                    dto.setDesignation(competenceClient.getCompetenceById(e.getCompetenceId()).getDesignation());
+                    dto.setCode(competenceClient.getCompetenceById(e.getCompetenceId()).getCode());
                     dto.setNiveau_actuel(e.getNiveau().toString());
                     dto.setNiveau_requis(
                             pc.getNiveauRequis() != null ? pc.getNiveauRequis().toString() : "NON_DEFINI"

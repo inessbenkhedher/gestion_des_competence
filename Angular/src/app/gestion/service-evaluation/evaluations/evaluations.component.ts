@@ -59,11 +59,15 @@ competencesNonEvaluees: any[] = [];
     });
   }
   
+  goToEmployeeDashboard() {
+  this.router.navigate(['/service-employee/dashboardemploye', this.employeeId]);
+}
 
   getEmployeeDetails() {
     this.evaluationService.getEmployeeById(this.employeeId).subscribe(data => {
       this.employee = data;
     });
+
   }
 
   getEvaluations() {
