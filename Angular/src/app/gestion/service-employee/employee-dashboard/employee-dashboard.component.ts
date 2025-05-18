@@ -35,6 +35,7 @@ export class EmployeeDashboardComponent implements OnInit {
   employee: any;
   competenceCount: number = 0;
   pieChartData: any;
+  niveauChartData: any;
 
   // Ordre des niveaux pour comparer
   private niveauOrder = ["DEBUTANT", "INTERMEDIAIRE", "AVANCE", "EXPERT"];
@@ -43,49 +44,52 @@ export class EmployeeDashboardComponent implements OnInit {
     private dashboardService: DashbordService,
     private route: ActivatedRoute
   ) {}
+ngOnInit(): void {
+  // 1. Récupérer l'ID de l'employé depuis l'URL
+  this.employeeId = +this.route.snapshot.paramMap.get('id')!;
 
-  ngOnInit(): void {
-    // 1. Récupérer l'ID de l'employé depuis l'URL
-    this.employeeId = +this.route.snapshot.paramMap.get('id')!;
+  // 2. Récupérer les détails de l'employé
+  this.dashboardService.getEmployeeById(this.employeeId).subscribe((data: any) => {
+    this.employee = data;
 
-    // 2. Récupérer les détails de l'employé
-    this.dashboardService.getEmployeeById(this.employeeId).subscribe((data: any) => {
-      this.employee = data;
+    const postId = this.employee?.post?.id;
 
-      const postId = this.employee?.post?.id;
+    if (postId) {
+      // 3. Récupérer les compétences liées au poste
+      this.dashboardService.getCompetencesByPostId(postId).subscribe((competences: any[]) => {
+        // 4. Récupérer les évaluations de l'employé
+        this.dashboardService.getEvaluationsByEmployeeId(this.employeeId).subscribe((evaluations: any[]) => {
+          console.log('Compétences du poste :', competences);
+          console.log('Évaluations brutes de l\'employé :', evaluations);
 
-      if (postId) {
-        // 3. Récupérer les compétences liées au poste
-        this.dashboardService.getCompetencesByPostId(postId).subscribe((competences: any[]) => {
-          // 4. Récupérer les évaluations de l'employé
-          this.dashboardService.getEvaluationsByEmployeeId(this.employeeId).subscribe((evaluations: any[]) => {
-            console.log('Compétences du poste :', competences);
-            console.log('Évaluations brutes de l\'employé :', evaluations);
+          // Garde la meilleure évaluation par compétence selon le niveau
+          const bestEvaluations = this.getBestEvaluationsByCompetence(evaluations);
 
-            // Garde la meilleure évaluation par compétence selon le niveau
-            const bestEvaluations = this.getBestEvaluationsByCompetence(evaluations);
-
-            // Filtrer celles au-dessus de INTERMEDIAIRE
-            const filteredEvaluations = bestEvaluations.filter(ev => this.isAboveIntermediaire(ev.niveau));
+          this.enrichEvaluationsWithCompetenceCodes(bestEvaluations).then((enrichedEvaluations) => {
+            const filteredEvaluations = enrichedEvaluations.filter(ev => this.isAboveIntermediaire(ev.niveau));
 
             const completed = filteredEvaluations.length;
             const total = competences.length;
             const pending = total - completed;
 
             this.competenceCount = total;
-            console.log('Meilleures évaluations par compétence :', bestEvaluations);
-            console.log('Completed:', completed);
-            console.log('Pending:', pending);
-            console.log('Total compétences:', total);
 
-            this.pieChartData = this.buildPieChart(completed, pending);
+            const completedCodes = filteredEvaluations.map(ev => ev.competenceCode);
+            const pendingCodes = competences
+              .map(c => c.code)
+              .filter(code => !completedCodes.includes(code));
+
+            this.pieChartData = this.buildPieChart(completed, pending, completedCodes, pendingCodes);
+            this.niveauChartData = this.buildPieChartFromNiveaux(enrichedEvaluations);
           });
+
         });
-      } else {
-        console.warn("Poste non défini pour l'employé");
-      }
-    });
-  }
+      });
+    } else {
+      console.warn("Poste non défini pour l'employé");
+    }
+  });
+}
 
   // Fonction pour garder la meilleure évaluation par compétence
 private getBestEvaluationsByCompetence(evaluations: any[]): any[] {
@@ -113,40 +117,145 @@ private getBestEvaluationsByCompetence(evaluations: any[]): any[] {
     return this.niveauOrder.indexOf(niveau) > this.niveauOrder.indexOf("INTERMEDIAIRE");
   }
 
-  buildPieChart(completed: number, pending: number): any {
-    const total = completed + pending;
-    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+ buildPieChart(completed: number, pending: number, completedCodes: string[] = [], pendingCodes: string[] = []): any {
+  const total = completed + pending;
+  const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-    return {
-      legend: {
+  return {
+    tooltip: {
+      trigger: 'item',
+      formatter: (params: any) => {
+        const codes = params.data.competenceCodes || [];
+        const codeList = codes.length ? codes.map(c => `• ${c}`).join('<br/>') : 'Aucun code';
+        return `${params.name}<br/>Nombre: ${params.value}<br/>Codes:<br/>${codeList}`;
+      }
+    },
+    legend: {
+      show: true,
+      bottom: 0,
+    },
+    series: [{
+      type: 'pie',
+      radius: ['50%', '70%'],
+      avoidLabelOverlap: false,
+      label: {
         show: true,
-        bottom: 0,
+        position: 'center',
+        formatter: `${percentage}%`,
+        fontSize: 18,
+        color: '#212121'
       },
-      series: [{
+      labelLine: { show: false },
+      data: [
+        {
+          value: completed,
+          name: 'Completed',
+          itemStyle: { color: '#663399' },
+          competenceCodes: completedCodes
+        },
+        {
+          value: pending,
+          name: 'Pending',
+          itemStyle: { color: '#ced4da' },
+          competenceCodes: pendingCodes
+        }
+      ]
+    }]
+  };
+}
+buildPieChartFromNiveaux(evaluations: any[]): any {
+  const niveauCounts: { [key: string]: number } = {
+    DEBUTANT: 0,
+    INTERMEDIAIRE: 0,
+    AVANCE: 0,
+    EXPERT: 0
+  };
+
+  const competenceCodesByNiveau: { [key: string]: string[] } = {
+    DEBUTANT: [],
+    INTERMEDIAIRE: [],
+    AVANCE: [],
+    EXPERT: []
+  };
+
+  evaluations.forEach(ev => {
+    const niveau = ev.niveau;
+    const code = ev.competenceCode || ev.competence?.code || 'Inconnu';
+
+    if (niveauCounts[niveau] !== undefined) {
+      niveauCounts[niveau]++;
+      competenceCodesByNiveau[niveau].push(code);
+    }
+  });
+
+  return {
+    tooltip: {
+      trigger: 'item',
+      formatter: (params: any) => {
+        const codes = params.data.competenceCodes || [];
+        const codeList = codes.length ? codes.map(c => `• ${c}`).join('<br/>') : 'Aucun code';
+        return `${params.name}<br/>Nombre: ${params.value}<br/>Codes: ${codeList}`;
+      }
+    },
+    legend: {
+      bottom: 0
+    },
+    series: [
+      {
+        name: 'Niveau atteint',
         type: 'pie',
-        radius: ['50%', '70%'],
+        radius: '75%',
+        center: ['50%', '50%'],
         avoidLabelOverlap: false,
         label: {
           show: true,
-          position: 'center',
-          formatter: `${percentage}%`,
-          fontSize: 18,
+          formatter: '{b}: {c} ({d}%)',
           color: '#212121'
         },
-        labelLine: { show: false },
-        data: [
-          {
-            value: completed,
-            name: 'Completed',
-            itemStyle: { color: '#663399' }
-          },
-          {
-            value: pending,
-            name: 'Pending',
-            itemStyle: { color: '#ced4da' }
+        labelLine: {
+          show: true
+        },
+        data: Object.keys(niveauCounts).map(niveau => ({
+          value: niveauCounts[niveau],
+          name: niveau,
+          competenceCodes: competenceCodesByNiveau[niveau],
+          itemStyle: {
+            color: this.getColorForNiveau(niveau)
           }
-        ]
-      }]
-    };
+        }))
+      }
+    ]
+  };
+}
+
+getColorForNiveau(niveau: string): string {
+  switch (niveau) {
+    case 'DEBUTANT': return '#a191db';      // Lightest purple
+    case 'INTERMEDIAIRE': return '#8b77d1'; // Slightly darker
+    case 'AVANCE': return '#755dc6';        // Medium purple
+    case 'EXPERT': return '#5e43bb';        // Dark purple
+    default: return '#b3a1e6';              // Default fallback purple
   }
+}
+
+private enrichEvaluationsWithCompetenceCodes(evaluations: any[]): Promise<any[]> {
+  const promises = evaluations.map(async (ev) => {
+    const competenceId = ev.competence?.id ?? ev.competenceId;
+    if (competenceId) {
+      try {
+        const competence: any = await this.dashboardService.getCompetenceById(competenceId).toPromise();
+        ev.competenceCode = competence.code;
+      } catch (error) {
+        console.error(`Erreur lors du chargement de la compétence ${competenceId}`, error);
+        ev.competenceCode = 'Inconnu';
+      }
+    } else {
+      ev.competenceCode = 'Inconnu';
+    }
+    return ev;
+  });
+
+  return Promise.all(promises);
+}
+
 }

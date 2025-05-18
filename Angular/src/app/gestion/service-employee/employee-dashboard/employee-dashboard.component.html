@@ -38,14 +38,23 @@
   </div>
 </div>
 
-<div class="col-lg-6 col-md-12">
-  <div class="card mb-4">
-    <div class="card-body">
-      <div class="card-title">Competences</div>
-      <div class="row">
-        <div class="col-md-6">
-          <div echarts [options]="pieChartData" [autoResize]="true" style="height: 250px;"></div>
-        </div>
+<div class="row">
+  <!-- Carte des compétences -->
+  <div class="col-lg-6 col-md-12">
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="card-title">Compétences</div>
+        <div echarts [options]="pieChartData" [autoResize]="true" style="height: 300px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carte des niveaux atteints -->
+  <div class="col-lg-6 col-md-12">
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="card-title">Répartition des niveaux atteints</div>
+        <div echarts [options]="niveauChartData" [autoResize]="true" style="height: 300px;"></div>
       </div>
     </div>
   </div>
