@@ -1,5 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +14,39 @@ export class DashbordService {
 
       getEvaluationsByEmployeeId(employeeId: number) {
     return this.http.get(`${this.baseUrl}/evaluation/employee/${employeeId}/competences`);
+  }
+
+    getallEvaluations(): Observable<any>{
+         return this.http.get(`${this.baseUrl}/evaluation`).pipe(
+        catchError(error => {
+          console.error('❌ Error fetching employee:', error);
+          return throwError(() => new Error("Erreur lors du chargement des employee"));
+        })
+      );
+    }
+  
+
+    getallPosts() :Observable<any> {
+         return this.http.get(`${this.baseUrl}/posts`).pipe(
+        catchError(error => {
+          console.error('❌ Error fetching employee:', error);
+          return throwError(() => new Error("Erreur lors du chargement des employee"));
+        })
+      );
+    }
+ 
+
+    getEmployees(): Observable<any> {
+      return this.http.get(`${this.baseUrl}/employees`).pipe(
+        catchError(error => {
+          console.error('❌ Error fetching employee:', error);
+          return throwError(() => new Error("Erreur lors du chargement des employee"));
+        })
+      );
+    }
+  
+  getProfilIA(employeeId: number) {
+    return this.http.get(`${this.baseUrl}/evaluation/profil-ia/${employeeId}`);
   }
 
     getEmployeeById(id: number) {
@@ -32,4 +67,26 @@ export class DashbordService {
   getCompetenceById(competenceId: number) {
     return this.http.get(`/api/competences/${competenceId}`);
   }
+
+    getAllCompetences(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/competences`).pipe(
+      catchError(error => {
+        console.error('❌ Error fetching competences:', error);
+        return throwError(() => new Error("Erreur lors du chargement des compétences"));
+      })
+    );
+  }
+
+    getCompetencesByPost(postId : number): Observable<any> {
+    return this.http.get(`api/postcompetence/${postId}/competences`).pipe(
+      catchError(error => {
+        console.error('❌ Error fetching competences:', error);
+        return throwError(() => new Error("Erreur lors du chargement des competence"));
+      })
+    );
+  }
+
+  
+
+  
 }

@@ -11,10 +11,11 @@
       <div class="col-md-6 form-group">
         <label for="familleSelect"><strong>Famille :</strong></label>
         <select id="familleSelect"
+        
                 [(ngModel)]="selectedFamilleId"
                 (change)="onFamilleChange()"
                 class="form-control form-control-rounded">
-          <option [value]="null" disabled selected>Sélectionner une famille</option>
+          <option [value]="null" disabled>Sélectionner une famille</option>
           <option *ngFor="let famille of familles" [value]="famille.id">
             {{ famille.title }}
           </option>

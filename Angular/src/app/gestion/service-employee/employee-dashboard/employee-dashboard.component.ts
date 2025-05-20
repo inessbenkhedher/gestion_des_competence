@@ -34,17 +34,31 @@ export class EmployeeDashboardComponent implements OnInit {
   employeeId!: number;
   employee: any;
   competenceCount: number = 0;
+  lineChartData: any;
   pieChartData: any;
   niveauChartData: any;
+  ecartsCount: number = 0;
+  competenceHistories: {
+  [competenceId: number]: {
+    name: string;
+    history: { date: string; niveau: string }[];
+  }
+} = {};
+
 
   // Ordre des niveaux pour comparer
   private niveauOrder = ["DEBUTANT", "INTERMEDIAIRE", "AVANCE", "EXPERT"];
+  evaluations: any[];
 
   constructor(
     private dashboardService: DashbordService,
     private route: ActivatedRoute
   ) {}
 ngOnInit(): void {
+  this.route.queryParams.subscribe(params => {
+      this.ecartsCount = +params['ecarts'] || 0;
+      console.log('Nombre d’écarts reçus:', this.ecartsCount);
+    });
   // 1. Récupérer l'ID de l'employé depuis l'URL
   this.employeeId = +this.route.snapshot.paramMap.get('id')!;
 
@@ -55,10 +69,12 @@ ngOnInit(): void {
     const postId = this.employee?.post?.id;
 
     if (postId) {
+  
       // 3. Récupérer les compétences liées au poste
       this.dashboardService.getCompetencesByPostId(postId).subscribe((competences: any[]) => {
         // 4. Récupérer les évaluations de l'employé
         this.dashboardService.getEvaluationsByEmployeeId(this.employeeId).subscribe((evaluations: any[]) => {
+           this.evaluations = evaluations;
           console.log('Compétences du poste :', competences);
           console.log('Évaluations brutes de l\'employé :', evaluations);
 
@@ -81,6 +97,7 @@ ngOnInit(): void {
 
             this.pieChartData = this.buildPieChart(completed, pending, completedCodes, pendingCodes);
             this.niveauChartData = this.buildPieChartFromNiveaux(enrichedEvaluations);
+           this.buildLineChart();
           });
 
         });
@@ -89,6 +106,7 @@ ngOnInit(): void {
       console.warn("Poste non défini pour l'employé");
     }
   });
+  
 }
 
   // Fonction pour garder la meilleure évaluation par compétence
@@ -257,5 +275,113 @@ private enrichEvaluationsWithCompetenceCodes(evaluations: any[]): Promise<any[]>
 
   return Promise.all(promises);
 }
+
+
+
+
+buildLineChart(): void {
+  const lastSixMonths = this.getLastSixMonths();
+  const evaluationsByMonth: { [month: string]: number[] } = {};
+
+  // Initialiser les mois
+  lastSixMonths.forEach(month => evaluationsByMonth[month] = []);
+
+  // Regrouper les niveaux par mois
+  this.evaluations.forEach(ev => {
+    const date = new Date(ev.date);
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    if (evaluationsByMonth[monthKey]) {
+      evaluationsByMonth[monthKey].push(this.niveauToNumeric(ev.niveau));
+    }
+  });
+
+  // Construire les moyennes
+let lastKnownAverage = 0;
+
+const chartData = lastSixMonths.map(month => {
+  const levels = evaluationsByMonth[month];
+  let avg = lastKnownAverage;
+
+  if (levels.length) {
+    avg = levels.reduce((a, b) => a + b, 0) / levels.length;
+    lastKnownAverage = avg;
+  }
+
+  return { month, average: avg };
+});
+
+  // Injecter dans ECharts
+  this.lineChartData = {
+    xAxis: {
+      type: 'category',
+      data: chartData.map(d => d.month)
+    },
+    yAxis: {
+      type: 'value',
+      min: 1,
+      max: 4,
+      interval: 1,
+      axisLabel: {
+        formatter: (value: number) => this.numericToNiveau(value)
+      }
+    },
+    series: [{
+      data: chartData.map(d => d.average),
+      type: 'line',
+      smooth: true,
+      lineStyle: {
+        color: '#5e43bb'
+      }
+    }],
+    tooltip: {
+      trigger: 'axis',
+      formatter: (params: any) => {
+        const val = params[0].value.toFixed(2);
+        return `${params[0].axisValue}<br/>Moyenne: ${val} (${this.numericToNiveau(val)})`;
+      }
+    }
+  };
+}
+
+getLastSixMonths(): string[] {
+  const result: string[] = [];
+  const today = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+    const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    result.push(month);
+  }
+  return result;
+}
+
+
+
+
+private niveauToNumeric(niveau: string): number {
+  switch (niveau) {
+    case 'DEBUTANT': return 1;
+    case 'INTERMEDIAIRE': return 2;
+    case 'AVANCE': return 3;
+    case 'EXPERT': return 4;
+    default: return 0;
+  }
+}
+
+private numericToNiveau(value: number): string {
+  if (value < 1.5) return 'DEBUTANT';
+  if (value < 2.5) return 'INTERMEDIAIRE';
+  if (value < 3.5) return 'AVANCE';
+  return 'EXPERT';
+}
+
+
+
+
+
+
+
+
+
+
 
 }

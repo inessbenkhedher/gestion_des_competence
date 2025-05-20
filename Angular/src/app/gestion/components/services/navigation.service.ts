@@ -50,20 +50,28 @@ export class NavigationService {
     }
 
     defaultMenu: IMenuItem[] = [
-        {
-            name: 'Grille de Polyvalence',
+          {
+            name: 'Dashboard',
             type: 'dropDown',
             icon: 'i-Bar-Chart',
+            state: '/service-employee',
             sub: [
                 {
+                    name: 'Dashboard',
+                    state: '/service-employee',
+                    type: 'link',
+                    icon: 'i-Bar-Chart-5',
+                },
+                   {
                     name: 'Grille',
                     state: '/service-evaluation/matrice',
                     type: 'link',
-                    icon: 'i-Checked-User',
+                    icon: 'i-Windows-2',
                 },
                
             ]
         },
+    
         {
             name: 'Service Compétence',
             description: 'Gestion des compétences et des employés',

@@ -8,6 +8,7 @@ import { EvaluationService } from '../services/evaluation.service';
 import { Router } from '@angular/router';
 import { KeycloakService } from 'src/app/Services/keycloak/keycloak.service';
 import { ToastrService } from 'ngx-toastr';
+import { StatusShareService } from '../services/status-share.service';
 
 @Component({
   selector: 'app-employee-list',
@@ -34,6 +35,11 @@ familles: any[] = [];
   employeeStatuses: { [key: number]: string } = {};
   showSelectionColumn: boolean = false;
   etatFilter: string | null = null;
+  statusCounts = {
+  rouge: 0,
+  orange: 0,
+  vert: 0
+};
 
 
   constructor(
@@ -44,7 +50,8 @@ familles: any[] = [];
     private cdRef: ChangeDetectorRef,
     private router: Router,
     private keycloakService: KeycloakService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private statusShareService: StatusShareService
   ) {
    
   
@@ -58,6 +65,8 @@ ngAfterViewInit() {
 
 
   ngOnInit() {
+
+ 
 
       // Recherche avec délai
       this.searchControl.valueChanges.pipe(
@@ -129,8 +138,52 @@ ngAfterViewInit() {
       this.filteredEmployees = filteredResults;
     });
 
-  
+ this.employeeService.getEmployees().subscribe((res: any[]) => {
+  this.employees = [...res];
+  this.filteredEmployees = res;
+
+  const statusPromises = this.filteredEmployees.map(e => {
+    this.employeeStatuses[e.id] = "loading";
+    return this.getEmployeeStatus(e.id).then(status => {
+      this.employeeStatuses[e.id] = status;
+      return status;
+    }).catch(error => {
+      console.error(`Erreur statut ${e.id}`, error);
+      this.employeeStatuses[e.id] = "rouge";
+      return "rouge";
+    });
+  });
+
+  Promise.all(statusPromises).then((statuses) => {
+    // Réinitialise puis recompte proprement
+    this.statusCounts = { rouge: 0, orange: 0, vert: 0 };
+    statuses.forEach(status => {
+      this.statusCounts[status]++;
+    });
+    this.updateStatusCounters(); // 🔁 met à jour le service partagé et logs
+  });
+});
+
   }
+
+
+updateStatusCounters() {
+
+  this.statusCounts = { rouge: 0, orange: 0, vert: 0 }; // reset
+
+  Object.values(this.employeeStatuses).forEach(status => {
+    if (status in this.statusCounts) {
+      this.statusCounts[status]++;
+    }
+  });
+
+   console.log('🟢 Total vert :', this.statusCounts.vert);
+  console.log('🟠 Total orange :', this.statusCounts.orange);
+  console.log('🔴 Total rouge :', this.statusCounts.rouge);
+  this.statusShareService.updateStatusCounts(this.statusCounts);
+}
+
+
 
   filterByEtat(etat: 'rouge' | 'orange' | 'vert') {
     this.etatFilter = etat;

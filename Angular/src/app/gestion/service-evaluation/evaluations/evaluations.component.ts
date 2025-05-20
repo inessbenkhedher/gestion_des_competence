@@ -60,7 +60,10 @@ competencesNonEvaluees: any[] = [];
   }
   
   goToEmployeeDashboard() {
-  this.router.navigate(['/service-employee/dashboardemploye', this.employeeId]);
+  const ecartsCount = this.competencesFaibles.length + this.competencesNonEvaluees.length;
+  this.router.navigate(['/service-employee/dashboardemploye', this.employeeId], {
+    queryParams: { ecarts: ecartsCount }
+  });
 }
 
   getEmployeeDetails() {

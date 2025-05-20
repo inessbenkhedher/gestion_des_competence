@@ -36,7 +36,8 @@ filteredEmployees: any[] = [];
       this.posts = data;
     });
 
- 
+  this.selectedFamilleId = 13;
+  this.onFamilleChange();
 
     this.searchControl.valueChanges.pipe(
       debounceTime(300),

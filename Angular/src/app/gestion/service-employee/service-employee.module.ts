@@ -9,13 +9,15 @@ import { FormWizardModule } from "../../shared/components/form-wizard/form-wizar
 import { EvaluerempComponent } from './evalueremp/evalueremp.component';
 import { EmployeeDashboardComponent } from './employee-dashboard/employee-dashboard.component';
 import { NgxEchartsModule } from 'ngx-echarts';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 
 @NgModule({
   declarations: [
     EmployeeListComponent,
     EvaluerempComponent,
-    EmployeeDashboardComponent
+    EmployeeDashboardComponent,
+    DashboardComponent
   ],
   imports: [
     CommonModule,

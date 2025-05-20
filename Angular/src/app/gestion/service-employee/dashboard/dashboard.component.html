@@ -1,7 +1,7 @@
 <div class="breadcrumb">
   <h1>Dashboard</h1>
   <ul>
-    <li><a href="">Employee</a></li>
+    <li><a href="">Global</a></li>
     <li>Dashboard</li>
   </ul>
 </div>
@@ -15,9 +15,9 @@
       <div class="card-body text-center">
         <i class="i-Add-User"></i>
         <div class="content">
-          <p class="text-muted mt-2 mb-0">Employé</p>
+          <p class="text-muted mt-2 mb-0">Nombre de employés</p>
           <p class="text-primary text-24 line-height-1 mb-2">
-            {{ employee?.prenom }} {{ employee?.nom }}
+            {{ totalEmployees }}
           </p>
         </div>
       </div>
@@ -30,8 +30,10 @@
       <div class="card-body ">
         <i class="i-Financial"></i>
         <div class="content">
-          <p class="text-muted mt-2 mb-0">Poste</p>
-          <p class="text-primary text-20  line-height-1 mb-2">{{ employee?.post?.title  }}</p>
+          <p class="text-muted mt-2 mb-0">Nombre de évaluations </p>
+          <p class="text-primary text-20  line-height-1 mb-2">
+             {{ totalEvaluations }}
+          </p>
         </div>
       </div>
     </div>
@@ -42,8 +44,10 @@
       <div class="card-body text-center">
         <i class="i-Big-Data"></i>
         <div class="content">
-          <p class="text-muted mt-2 mb-0">Compétences</p>
-          <p class="text-primary text-24 line-height-1 mb-2">{{ competenceCount }}</p>
+          <p class="text-muted mt-2 mb-0">Nombre de compétences</p>
+          <p class="text-primary text-24 line-height-1 mb-2">
+             {{ totalCompetences }}
+          </p>
         </div>
       </div>
     </div>
@@ -55,8 +59,10 @@
       <div class="card-body text-center">
         <i class="i-Statistic"></i>
         <div class="content">
-          <p class="text-muted mt-2 mb-0">Nombre des ecarts</p>
-          <p class="text-primary text-24 line-height-1 mb-2">{{ ecartsCount }}</p>
+          <p class="text-muted mt-2 mb-0">Nombre de postes</p>
+          <p class="text-primary text-24 line-height-1 mb-2">
+             {{ totalPostes }}
+          </p>
         </div>
       </div>
     </div>
@@ -64,34 +70,30 @@
 </div>
 
 <div class="row">
-  <!-- Carte des compétences -->
+
   <div class="col-lg-6 col-md-12">
     <div class="card mb-4">
       <div class="card-body">
-        <div class="card-title">Compétences</div>
-        <div echarts [options]="pieChartData" [autoResize]="true" style="height: 300px;"></div>
+        <div class="card-title">Répartition des statuts</div>
+        <div echarts [options]="statusChartOptions" [autoResize]="true" style="height: 300px;"></div>
       </div>
     </div>
   </div>
 
-  <!-- Carte des niveaux atteints -->
+
   <div class="col-lg-6 col-md-12">
-    <div class="card mb-4">
-      <div class="card-body">
-        <div class="card-title">Répartition des niveaux atteints</div>
-        <div echarts [options]="niveauChartData" [autoResize]="true" style="height: 300px;"></div>
-      </div>
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="card-title">Qualité des évaluations</div>
+      <div echarts [options]="evaluationQualityChartOptions" [autoResize]="true" style="height: 300px;"></div>
     </div>
   </div>
 </div>
 
- <div class="row">
-        
-         
-                <div class="card-body">
-                    <div class="card-title">Historique d'evolution</div>
-                    <div  echarts [options]="lineChartData" class="chart" *ngIf="lineChartData" style="height: 300px; width: 100%;"></div>
-                </div>
-         
-        
+</div>
+
+    <div class="card-body">
+      <div class="card-title">Évolution des niveaux d’évaluation</div>
+      <div echarts [options]="evaluationTrendChartOptions" class="echart" style="height: 400px; width: 100%;"></div>
     </div>
+
