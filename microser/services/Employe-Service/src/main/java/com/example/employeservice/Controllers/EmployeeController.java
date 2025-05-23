@@ -3,6 +3,7 @@ package com.example.employeservice.Controllers;
 
 import com.example.employeservice.Dto.employeedto;
 import com.example.employeservice.Entites.Employee;
+import com.example.employeservice.Entites.Post;
 import com.example.employeservice.Services.IServiceEmploye;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -54,6 +55,11 @@ public class EmployeeController {
     public ResponseEntity<List<Employee>> getEmployeesByNom(@RequestParam String mc) {
         List<Employee> employees = serviceEmployee.getEmployeesByName(mc);
         return ResponseEntity.ok(employees);
+    }
+
+    @GetMapping("/byposte/{postId}")
+    public List<Employee> getPostsByServiceId(@PathVariable Long postId) {
+        return serviceEmployee.getEmployeesByPostid (postId);
     }
 
     @GetMapping("/export")

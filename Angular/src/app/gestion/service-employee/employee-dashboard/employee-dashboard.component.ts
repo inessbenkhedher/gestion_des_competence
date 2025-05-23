@@ -1,8 +1,10 @@
 
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit ,ViewChild, ElementRef} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DashbordService } from '../services/dashbord.service';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface Employee {
   id: number;
@@ -24,6 +26,7 @@ interface Evaluation {
   [key: string]: any;
 }
 
+
 @Component({
   selector: 'app-employee-dashboard',
   templateUrl: './employee-dashboard.component.html',
@@ -31,6 +34,7 @@ interface Evaluation {
 })
 export class EmployeeDashboardComponent implements OnInit {
 
+  @ViewChild('pdfContent', { static: false }) pdfContent!: ElementRef;
   employeeId!: number;
   employee: any;
   competenceCount: number = 0;
@@ -378,6 +382,23 @@ private numericToNiveau(value: number): string {
 
 
 
+exportPDF(): void {
+  const DATA = this.pdfContent.nativeElement;
+
+  html2canvas(DATA, { scale: 2 }).then(canvas => {
+    const imgWidth = 210; // A4 width in mm
+    const pageHeight = 297; // A4 height in mm
+    const imgHeight = canvas.height * imgWidth / canvas.width;
+    const heightLeft = imgHeight;
+
+    const contentDataURL = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'mm', 'a4');
+
+    let position = 0;
+    pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+    pdf.save(`employee-dashboard-${this.employee?.nom || 'export'}.pdf`);
+  });
+}
 
 
 

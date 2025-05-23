@@ -4,6 +4,7 @@ import com.example.evaluation_service.Entities.Evaluation;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.util.List;
 
 public interface IServiceEvaluation {
@@ -17,4 +18,6 @@ public interface IServiceEvaluation {
     List<Evaluation> getEvaluationHistory(Long employeeId, Long competenceId);
     public ProfilEmployeeDto buildProfilForIA(Long employeeId);
     public void exportEvaluationByPost(Long postId, HttpServletResponse response) throws IOException;
+    public AnalyseResultDto analyseEvaluationParPosteEtPeriode(Date dateDebut, Date dateFin, Long posteId);
+    public int countPostesNonEvalues(Date dateDebut, Date dateFin);
 }

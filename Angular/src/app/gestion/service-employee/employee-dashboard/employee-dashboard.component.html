@@ -1,3 +1,4 @@
+
 <div class="breadcrumb">
   <h1>Dashboard</h1>
   <ul>
@@ -5,9 +6,11 @@
     <li>Dashboard</li>
   </ul>
 </div>
+<button (click)="exportPDF()" class="btn btn-primary mb-3">Exporter en PDF</button>
 
 <div class="separator-breadcrumb border-top"></div>
 
+<div #pdfContent id="pdfContent">
 <div class="row g-3 align-items-stretch">
   <!-- Carte 1 : Nom et Prénom -->
   <div class="col-lg-3 col-md-6 col-sm-6 d-flex">
@@ -94,4 +97,8 @@
                 </div>
          
         
+    </div>
+
+
+
     </div>

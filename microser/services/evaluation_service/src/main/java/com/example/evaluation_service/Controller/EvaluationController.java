@@ -7,10 +7,13 @@ import com.example.evaluation_service.Entities.Niveau_Possible;
 import com.example.evaluation_service.service.IServiceEvaluation;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 @AllArgsConstructor
@@ -40,8 +43,8 @@ public class EvaluationController {
     }
 
     @PutMapping("/{id}")
-    public void updateEvaluation(@PathVariable Long id,@RequestBody Evaluation evaluation) {
-        serviceEvaluation.updateevaluation(id,evaluation);
+    public void updateEvaluation(@PathVariable Long id, @RequestBody Evaluation evaluation) {
+        serviceEvaluation.updateevaluation(id, evaluation);
     }
 
     @GetMapping("/employee/{employeeId}/competences")
@@ -74,5 +77,29 @@ public class EvaluationController {
     @GetMapping("/export/{postId}")
     public void exportEvaluationByPost(@PathVariable Long postId, HttpServletResponse response) throws IOException {
         serviceEvaluation.exportEvaluationByPost(postId, response);
+    }
+
+    @GetMapping("/analyse")
+    public AnalyseResultDto analyse(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dateDebut,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dateFin,
+            @RequestParam Long posteId
+    ) {
+        // Convertir en java.sql.Date (si nécessaire pour la méthode service)
+        Date sqlDateDebut = Date.valueOf(dateDebut);
+        Date sqlDateFin = Date.valueOf(dateFin);
+        return serviceEvaluation.analyseEvaluationParPosteEtPeriode(sqlDateDebut, sqlDateFin, posteId);
+    }
+
+
+    @GetMapping("/postes-non-evalues")
+    public ResponseEntity<Integer> getNombrePostesNonEvalues(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd")  LocalDate dateDebut,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd")  LocalDate dateFin) {
+
+        Date sqlDateDebut = Date.valueOf(dateDebut);
+        Date sqlDateFin = Date.valueOf(dateFin);
+        int nombrePostesNonEvalues = serviceEvaluation.countPostesNonEvalues(sqlDateDebut, sqlDateFin);
+        return ResponseEntity.ok(nombrePostesNonEvalues);
     }
 }

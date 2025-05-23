@@ -7,9 +7,10 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 
 const routes: Routes = [
   { path: 'employees', component: EmployeeListComponent },
+   { path: 'home', component: DashboardComponent },
   { path: 'evaluation', component: EvaluerempComponent },
-  { path: 'dashboardemploye/:id', component: EmployeeDashboardComponent },
-  { path: '', component: DashboardComponent },
+  { path: 'dashboardemploye/:id', component: EmployeeDashboardComponent }
+
 
 ];
 

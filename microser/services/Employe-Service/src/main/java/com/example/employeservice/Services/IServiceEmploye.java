@@ -16,4 +16,5 @@ public interface IServiceEmploye {
     public List<Employee> getEmployeesByPost(String mc);
     public List<Employee> getEmployeesByName(String name);
     public void exportEmployeesToExcel(HttpServletResponse response)throws IOException;
+    public List<Employee> getEmployeesByPostid(Long id);
 }

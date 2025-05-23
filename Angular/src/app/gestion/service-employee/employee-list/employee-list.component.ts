@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { KeycloakService } from 'src/app/Services/keycloak/keycloak.service';
 import { ToastrService } from 'ngx-toastr';
 import { StatusShareService } from '../services/status-share.service';
+import { EmployeeStatusService } from '../services/employee-status.service';
 
 @Component({
   selector: 'app-employee-list',
@@ -40,6 +41,9 @@ familles: any[] = [];
   orange: 0,
   vert: 0
 };
+serviceNamesByEmployeeId: { [key: number]: string } = {};
+
+
 
 
   constructor(
@@ -51,7 +55,8 @@ familles: any[] = [];
     private router: Router,
     private keycloakService: KeycloakService,
     private toastr: ToastrService,
-    private statusShareService: StatusShareService
+    private statusShareService: StatusShareService,
+     private employeeStatusService: EmployeeStatusService
   ) {
    
   
@@ -112,11 +117,12 @@ ngAfterViewInit() {
     this.employeeService.getEmployees().subscribe((res: any[]) => {
       this.employees = [...res];
       this.filteredEmployees = res;
+       this.loadServiceNamesForEmployees();
     
       // ✅ Appeler ici, une fois qu'on a bien les employés
       this.filteredEmployees.forEach(e => {
         this.employeeStatuses[e.id] = "loading";
-        this.getEmployeeStatus(e.id).then(status => {
+        this.employeeStatusService.getEmployeeStatus(e.id).then(status => { 
           this.employeeStatuses[e.id] = status;
         }).catch(error => {
           console.error(`Erreur statut ${e.id}`, error);
@@ -124,6 +130,8 @@ ngAfterViewInit() {
         });
       });
     });
+
+   
 
     // Listen to search input changes and fetch filtered employees
     this.searchControl.valueChanges.pipe(
@@ -144,7 +152,7 @@ ngAfterViewInit() {
 
   const statusPromises = this.filteredEmployees.map(e => {
     this.employeeStatuses[e.id] = "loading";
-    return this.getEmployeeStatus(e.id).then(status => {
+    this.employeeStatusService.getEmployeeStatus(e.id).then(status => { 
       this.employeeStatuses[e.id] = status;
       return status;
     }).catch(error => {
@@ -154,18 +162,21 @@ ngAfterViewInit() {
     });
   });
 
-  Promise.all(statusPromises).then((statuses) => {
-    // Réinitialise puis recompte proprement
-    this.statusCounts = { rouge: 0, orange: 0, vert: 0 };
-    statuses.forEach(status => {
-      this.statusCounts[status]++;
-    });
-    this.updateStatusCounters(); // 🔁 met à jour le service partagé et logs
-  });
+ 
 });
 
   }
 
+
+ loadServiceNamesForEmployees() {
+  this.employees.forEach(employee => {
+    if (employee.post && employee.post.id) {
+      this.employeeService.getserviceBypost(employee.post.id).subscribe(service => {
+        this.serviceNamesByEmployeeId[employee.id] = service.nom;
+      });
+    }
+  });
+}
 
 updateStatusCounters() {
 
@@ -220,39 +231,7 @@ updateStatusCounters() {
     });
   }
 
-  async getEmployeeStatus(employeeId: number): Promise<"rouge" | "orange" | "vert"> {
-    try {
-      const profil = await this.evaluationService.getProfilIA(employeeId).toPromise();
-      console.log(profil); // Ajoutez ceci pour voir les données du profil
-      const niveaux = ["DEBUTANT", "INTERMEDIAIRE", "AVANCE", "EXPERT"];
-      const niveauIndex = (niveau: string) => niveaux.indexOf(niveau);
   
-      if (!profil.competences || profil.competences.length === 0) {
-        return "rouge"; // aucune évaluation
-      }
-  
-      const hasGap = profil.competences.some((c: any) =>
-        niveauIndex(c.niveau_requis) - niveauIndex(c.niveau_actuel) >= 2
-      );
-  
-      const allRequired = await this.evaluationService.getCompetencesByPost(profil.poste_id).toPromise();
-      const evalueesIds = profil.competences.map((c: any) => c.competence_id);
-      const nonEvaluees = allRequired.filter((c: any) => !evalueesIds.includes(c.id));
-  
-      if (hasGap || nonEvaluees.length > 0) {
-        return "orange";
-      }
-      if (profil.hasNoEvaluations) {
-        return "rouge"; // ou 🔴
-      }
-  
-      return "vert";
-    } catch (error) {
-      console.error("Erreur IA", error);
-      return "rouge"; // fallback
-    }
-  }
-
   getPosts() {
     this.evaluationService.getAllPosts().subscribe({
       next: (data) => this.posts = data,

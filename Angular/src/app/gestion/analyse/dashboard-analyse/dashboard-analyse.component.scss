@@ -1,0 +1,9 @@
+@media print {
+  #charts-row {
+    display: flex;
+    flex-direction: column !important;
+  }
+  #charts-row > div {
+    flex: 1 1 100% !important;
+  }
+}

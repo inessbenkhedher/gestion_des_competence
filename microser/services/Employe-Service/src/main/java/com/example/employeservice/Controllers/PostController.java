@@ -37,8 +37,13 @@ public class PostController {
         servicePost.deletePost(id);
     }
 
-    @PutMapping
-    public void updatePost(@RequestBody Post post) {
-        servicePost.updatePost(post);
+    @PutMapping("/{id}")
+    public void updatePost(@PathVariable Long id, @RequestBody Post post) {
+        servicePost.updatePost(id, post);
+    }
+
+    @GetMapping("/service/{serviceId}")
+    public List<Post> getPostsByServiceId(@PathVariable Long serviceId) {
+        return servicePost.getPostsByServiceId(serviceId);
     }
 }

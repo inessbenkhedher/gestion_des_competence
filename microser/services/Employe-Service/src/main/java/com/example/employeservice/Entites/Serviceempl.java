@@ -2,7 +2,10 @@ package com.example.employeservice.Entites;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,19 +18,14 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Builder
-public class Post {
+public class Serviceempl {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long id;
-
-    private String title;
-    private String description;
+    private String nom;
 
     @JsonIgnore
-    @OneToMany(mappedBy="post",cascade=CascadeType.ALL)
-    private List<Employee> employees;
-
-    @ManyToOne
-    private Serviceempl service;
+    @OneToMany(mappedBy = "service")
+    private List<Post> postes;
 }

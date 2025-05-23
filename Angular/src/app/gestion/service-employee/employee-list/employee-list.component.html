@@ -97,7 +97,7 @@
         
         <ngx-datatable-column name="Service" [width]="200">
           <ng-template ngx-datatable-cell-template let-row="row">
-            {{ row.service }} 
+             {{ serviceNamesByEmployeeId[row.id] || '...' }}
           </ng-template>
         </ngx-datatable-column>
 

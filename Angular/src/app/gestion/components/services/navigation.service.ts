@@ -51,14 +51,30 @@ export class NavigationService {
 
     defaultMenu: IMenuItem[] = [
           {
+            name: 'Acceuil',
+            type: 'dropDown',
+            icon: 'i-Home1',
+      
+            sub: [
+                {
+                    name: 'Home',
+                    state: '/service-employee/home',
+                    type: 'link',
+                    icon: 'i-Bar-Chart-5',
+                }
+               
+            ]
+        },
+
+                {
             name: 'Dashboard',
             type: 'dropDown',
             icon: 'i-Bar-Chart',
-            state: '/service-employee',
+      
             sub: [
                 {
-                    name: 'Dashboard',
-                    state: '/service-employee',
+                    name: 'Analyse',
+                    state: '/analyse',
                     type: 'link',
                     icon: 'i-Bar-Chart-5',
                 },
@@ -71,6 +87,7 @@ export class NavigationService {
                
             ]
         },
+    
     
         {
             name: 'Service Compétence',

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DashbordService } from '../services/dashbord.service';
 import { StatusShareService } from '../services/status-share.service';
+import { EmployeeStatusService } from '../services/employee-status.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,22 +28,15 @@ mauvaisesEvaluationsTop3 = '';
 
   constructor(
     private dashService: DashbordService,
-    private statusShareService: StatusShareService
+    private statusShareService: StatusShareService,
+    private employeeStatusService: EmployeeStatusService 
   ) {}
 
   ngOnInit(): void {
     this.loadDashboardCounts();
    
-  this.statusShareService.statusCounts$.subscribe(counts => {
     
-    this.redCount = counts.rouge;
-    this.orangeCount = counts.orange;
-    this.greenCount = counts.vert;
-       console.log('🟢 Total vert :', this.greenCount);
-  console.log('🟠 Total orange :', this.orangeCount);
-  console.log('🔴 Total rouge :', this.redCount);
-    this.setChartOptions(); // Ajoute ici pour mettre à jour le graphique dès que les statuts changent
-  });
+this.loadEmployeeStatusCounts();
 
 
   this.dashService.getallEvaluations().subscribe(evaluations => {
@@ -162,7 +156,26 @@ this.dashService.getallEvaluations().subscribe(evaluations => {
     });
   }
 
- 
+ loadEmployeeStatusCounts(): void {
+  this.dashService.getEmployees().subscribe(async employees => {
+    let red = 0;
+    let orange = 0;
+    let green = 0;
+
+    for (const employee of employees) {
+      const status = await this.employeeStatusService.getEmployeeStatus(employee.id);
+      if (status === 'rouge') red++;
+      else if (status === 'orange') orange++;
+      else if (status === 'vert') green++;
+    }
+
+    this.redCount = red;
+    this.orangeCount = orange;
+    this.greenCount = green;
+
+    this.setChartOptions(); // 🧠 met à jour le donut chart
+  });
+}
 
   setChartOptions(): void {
     this.statusChartOptions = {

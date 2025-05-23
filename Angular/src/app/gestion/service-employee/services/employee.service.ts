@@ -27,6 +27,10 @@ export class EmployeeService {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
 
+    getserviceBypost(id: number): Observable<any> {
+    return this.http.get<any>(`api/services/by-post/${id}`);
+  }
+
   getEmployeeByNom(searchTerm : String): Observable<any> {
     if (!searchTerm.trim()) {
       return this.getEmployees(); // If search is empty, return all employees

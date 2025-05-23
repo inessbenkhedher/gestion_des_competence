@@ -45,7 +45,27 @@ public class ServicePost implements IServicePost {
     }
 
     @Override
-    public void updatePost(Post post) {
-        pr.save(post);
+    public void updatePost(Long id, Post post) {
+        Post existing = pr.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Poste non trouvé avec l'id : " + id));
+
+        if (post.getTitle() != null && !post.getTitle().isEmpty()) {
+            existing.setTitle(post.getTitle());
+        }
+
+        if (post.getDescription() != null && !post.getDescription().isEmpty()) {
+            existing.setDescription(post.getDescription());
+        }
+
+        if (post.getService() != null &&
+                (existing.getService() == null || !existing.getService().getId().equals(post.getService().getId()))) {
+            existing.setService(post.getService());
+        }
+
+        pr.save(existing);
+    }
+
+    public List<Post> getPostsByServiceId(Long serviceId) {
+        return pr.findByServiceId(serviceId);
     }
 }

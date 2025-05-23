@@ -1,0 +1,123 @@
+<div class="breadcrumb">
+  <h1>Dashboard</h1>
+  <ul>
+    <li><a href="#">Analyse</a></li>
+    <li>charts</li>
+  </ul>
+</div>
+<button (click)="exportPDF()" class="btn btn-primary mb-3">Exporter en PDF</button>
+<div class="separator-breadcrumb border-top mb-4"></div>
+
+<div #pdfContent id="pdfContent" style="overflow: visible;">
+
+<div class="card mb-4">
+  <div class="card-body">
+    <form [formGroup]="dashboardForm" class="row g-3">
+
+      <div class="col-md-3">
+        <label for="startDate" class="form-label">Date de début</label>
+        <input type="date" id="startDate" class="form-control" formControlName="startDate" />
+      </div>
+
+      <div class="col-md-3">
+        <label for="endDate" class="form-label">Date de fin</label>
+        <input type="date" id="endDate" class="form-control" formControlName="endDate" />
+      </div>
+
+      <div class="col-md-3">
+        <label for="selectedServiceId" class="form-label">Service</label>
+        <select id="selectedServiceId" class="form-control" formControlName="selectedServiceId">
+            <option value="">-- Choisir un service --</option>
+            <option *ngFor="let service of services" [value]="service.id">{{ service.nom }}</option>
+            </select>
+      </div>
+
+      <div class="col-md-3">
+        <label for="selectedPostId" class="form-label">Poste</label>
+        <select id="selectedPostId" class="form-control" formControlName="selectedPostId">
+          <option value="">-- Choisir un poste --</option>
+          <option *ngFor="let post of filteredPosts" [value]="post.id">{{ post.title }}</option>
+        </select>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<div class="row flex-column">
+  <div class="col-12 mb-4">
+    <h3>Qualité des évaluations</h3>
+    <div echarts [options]="evaluationQualityChartOptions" [autoResize]="true" style="height: 300px; width: 100%; min-width: 100%;"></div>
+  </div>
+  <div class="col-12">
+    <h3>Évolution des niveaux (6 derniers mois)</h3>
+    <div echarts [options]="evaluationTrendChartOptions" [autoResize]="true" style="height: 300px; width: 100%; min-width: 100%;"></div>
+  </div>
+</div>
+
+
+
+
+
+<div class="row g-3 align-items-stretch" >
+  <!-- Carte 1 : Nom et Prénom -->
+  <div class="col-lg-3 col-md-6 col-sm-6 d-flex">
+    <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 w-100">
+      <div class="card-body text-center">
+    <p class="text-muted mt-2 mb-0">Nombre de employés non évaluer</p>
+        <div class="content">
+          
+          <p class="text-primary text-24 line-height-1 mb-2">
+           {{ analyseResult?.employeesNonEvalues?.length || 0 }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carte 2 : Poste-->
+  <div class="col-lg-3 col-md-6 col-sm-6 d-flex">
+    <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 w-100">
+      <div class="card-body ">
+        <p class="text-muted mt-2 mb-0">Nombre de évaluations faible</p>
+        <div class="content">
+          
+          <p class="text-primary text-20  line-height-1 mb-2">
+             {{ analyseResult?.evaluationsFaibles?.length || 0 }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Carte 2 : Nombre de compétences -->
+  <div class="col-lg-3 col-md-6 col-sm-6 d-flex">
+    <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 w-100">
+      <div class="card-body text-center">
+        <p class="text-muted mt-2 mb-0">Nombre de compétences faible</p>
+        <div class="content">
+          
+          <p class="text-primary text-24 line-height-1 mb-2">
+            {{ analyseResult?.competencesMoyenneFaible?.length || 0 }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carte 2 : Nombre des ecart-->
+  <div class="col-lg-3 col-md-6 col-sm-6 d-flex">
+    <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 w-100">
+      <div class="card-body text-center">
+        <p class="text-muted mt-2 mb-0">Nombre de postes non évaluer</p>
+        <div class="content">
+         
+          <p class="text-primary text-24 line-height-1 mb-2">
+             {{ nombrePostesNonEvalues }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>

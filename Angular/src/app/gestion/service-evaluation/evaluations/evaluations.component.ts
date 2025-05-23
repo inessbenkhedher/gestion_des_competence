@@ -66,6 +66,8 @@ competencesNonEvaluees: any[] = [];
   });
 }
 
+  
+
   getEmployeeDetails() {
     this.evaluationService.getEmployeeById(this.employeeId).subscribe(data => {
       this.employee = data;

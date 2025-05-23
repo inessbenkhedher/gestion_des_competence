@@ -94,6 +94,10 @@ public class ServiceEmployee implements IServiceEmploye{
         return er.findbyNompost(mc);
     }
 
+    public List<Employee> getEmployeesByPostid(Long id) {
+        return er.findByPostId(id);
+    }
+
     public List<Employee> getEmployeesByName(String name) {
         return er.searchEmployees(name);
     }

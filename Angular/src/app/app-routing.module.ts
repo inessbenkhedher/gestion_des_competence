@@ -5,6 +5,7 @@ import { AuthGaurd } from './shared/services/auth.gaurd';
 import { BlankLayoutComponent } from './shared/components/layouts/blank-layout/blank-layout.component';
 import { AdminLayoutSidebarCompactComponent } from './shared/components/layouts/admin-layout-sidebar-compact/admin-layout-sidebar-compact.component';
 import { AdminLayoutCustomComponent } from './gestion/components/layouts/admin-layout-custom/admin-layout-custom.component';
+import { DashboardComponent } from './gestion/service-employee/dashboard/dashboard.component';
 
 const templateRoutes: Routes = [
     {
@@ -56,6 +57,11 @@ const templateRoutes: Routes = [
 
 
 const adminRoutes: Routes = [
+
+    {
+  path: 'analyse',
+  loadChildren: () => import('./gestion/analyse/analyse.module').then(m => m.AnalyseModule)
+},
     
     {
       path: 'service-competence',
@@ -74,8 +80,8 @@ const adminRoutes: Routes = [
 const routes: Routes = [
 
   {
-    path: '',
-    redirectTo: 'dashboard/v1',
+    path: 'home',
+    redirectTo: 'service-employee/home',
     pathMatch: 'full'
   },
   {

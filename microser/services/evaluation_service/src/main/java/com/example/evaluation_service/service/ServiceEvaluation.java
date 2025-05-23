@@ -2,6 +2,7 @@ package com.example.evaluation_service.service;
 
 import com.example.evaluation_service.DTO.*;
 import com.example.evaluation_service.Entities.Evaluation;
+import com.example.evaluation_service.Entities.Niveau_Possible;
 import com.example.evaluation_service.Entities.PosteCompetence;
 import com.example.evaluation_service.Feign.CompetenceFeignClient;
 import com.example.evaluation_service.Feign.EmployeeFeignClient;
@@ -285,8 +286,103 @@ public class ServiceEvaluation implements IServiceEvaluation {
 
 
 
+    public AnalyseResultDto analyseEvaluationParPosteEtPeriode(Date dateDebut, Date dateFin, Long posteId) {
+        List<Employee> allEmployees = employeeClient.getAllEmployees();
+        List<Employee> employeesDuPoste = allEmployees.stream()
+                .filter(e -> e.getPost() != null && e.getPost().getId().equals(posteId))
+                .toList();
 
+        List<PosteCompetence> posteCompetences = posteCompetenceRepository.findByPosteId(posteId);
+        List<Long> competenceIds = posteCompetences.stream().map(PosteCompetence::getCompetenceId).toList();
+        List<Competence> competences = competenceIds.stream().map(competenceClient::getCompetenceById).toList();
 
+        List<Evaluation> evaluationsPeriode = er.findAll().stream()
+                .filter(e -> !e.getDate().before(dateDebut) && !e.getDate().after(dateFin))
+                .toList();
+
+        // 🔴 1. Employés non évalués durant la période
+        List<Long> employeesEvalues = evaluationsPeriode.stream()
+                .map(Evaluation::getEmployeeId).distinct().toList();
+        List<Employee> employeesNonEvalues = employeesDuPoste.stream()
+                .filter(emp -> !employeesEvalues.contains(emp.getId()))
+                .toList();
+
+        // 🟠 2. Compétences non évaluées durant la période
+        List<Long> competencesEvaluees = evaluationsPeriode.stream()
+                .map(Evaluation::getCompetenceId).distinct().toList();
+        List<Competence> competencesNonEvaluees = competences.stream()
+                .filter(c -> !competencesEvaluees.contains(c.getId()))
+                .toList();
+
+        // 🟡 3. Évaluations faibles (niveau ≤ INTERMEDIAIRE)
+        List<EvaluationDto> evaluationsFaibles = evaluationsPeriode.stream()
+                .filter(e -> e.getNiveau().ordinal() <= Niveau_Possible.INTERMEDIAIRE.ordinal())
+                .map(e -> {
+                    Competence comp = competenceClient.getCompetenceById(e.getCompetenceId());
+                    Employee emp = employeeClient.getEmployeeById(e.getEmployeeId());
+                    return emapper.mapToEvaluationDto(e, emp, comp);
+                })
+                .toList();
+
+        // 🔵 4. Moyenne des évaluations par compétence
+        Map<Long, List<Evaluation>> evalsParComp = evaluationsPeriode.stream()
+                .filter(e -> competenceIds.contains(e.getCompetenceId()))
+                .collect(Collectors.groupingBy(Evaluation::getCompetenceId));
+
+        List<CompetenceMoyenneDto> competencesMoyenneFaible = new ArrayList<>();
+        for (Map.Entry<Long, List<Evaluation>> entry : evalsParComp.entrySet()) {
+            double moyenne = entry.getValue().stream()
+                    .mapToInt(e -> e.getNiveau().ordinal() + 1) // ordinal 0 = DEBUTANT → niveau 1
+                    .average().orElse(0);
+
+            if (moyenne <= 2.0) {
+                CompetenceMoyenneDto dto = new CompetenceMoyenneDto();
+                dto.setCompetenceId(entry.getKey());
+                dto.setMoyenne(moyenne);
+                dto.setCode(competenceClient.getCompetenceById(entry.getKey()).getCode());
+                competencesMoyenneFaible.add(dto);
+            }
+        }
+
+        AnalyseResultDto result = new AnalyseResultDto();
+        result.setEmployeesNonEvalues(employeesNonEvalues);
+        result.setCompetencesNonEvaluees(competencesNonEvaluees);
+        result.setEvaluationsFaibles(evaluationsFaibles);
+        result.setCompetencesMoyenneFaible(competencesMoyenneFaible);
+
+        return result;
+    }
+
+    public int countPostesNonEvalues(Date dateDebut, Date dateFin) {
+        List<Employee> allEmployees = employeeClient.getAllEmployees();
+        List<Evaluation> evaluationsPeriode = er.findAll().stream()
+                .filter(e -> !e.getDate().before(dateDebut) && !e.getDate().after(dateFin))
+                .toList();
+
+        List<Long> postesIds = allEmployees.stream()
+                .filter(e -> e.getPost() != null)
+                .map(e -> e.getPost().getId())
+                .distinct()
+                .toList();
+
+        int postesNonEvalues = 0;
+
+        for (Long posteId : postesIds) {
+            List<Long> employeesIdsDuPoste = allEmployees.stream()
+                    .filter(e -> e.getPost() != null && e.getPost().getId().equals(posteId))
+                    .map(Employee::getId)
+                    .toList();
+
+            boolean posteEstEvalue = evaluationsPeriode.stream()
+                    .anyMatch(e -> employeesIdsDuPoste.contains(e.getEmployeeId()));
+
+            if (!posteEstEvalue) {
+                postesNonEvalues++;
+            }
+        }
+
+        return postesNonEvalues;
+    }
 
 
 
