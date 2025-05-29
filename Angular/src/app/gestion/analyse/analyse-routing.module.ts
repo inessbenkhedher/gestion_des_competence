@@ -1,9 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { DashboardAnalyseComponent } from './dashboard-analyse/dashboard-analyse.component';
+import { SaisieElementComponent } from './saisie-element/saisie-element.component';
 
 const routes: Routes = [
-  { path: '', component: DashboardAnalyseComponent }
+  { path: 'charts', component: DashboardAnalyseComponent },
+   { path: 'saisie', component: SaisieElementComponent }
 ];
 
 @NgModule({

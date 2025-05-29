@@ -7,12 +7,14 @@ import com.example.employeservice.Repository.EmployeeRepository;
 import com.example.employeservice.mappers.Employeemapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.springframework.stereotype.Service;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,17 +110,57 @@ public class ServiceEmployee implements IServiceEmploye{
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Employees");
 
-        // Header row
-        Row headerRow = sheet.createRow(0);
+        // TITRE principal (centré et fusionné)
+        Row titleRow = sheet.createRow(0);
+        Cell titleCell = titleRow.createCell(0);
+        titleCell.setCellValue("Liste des employés");
+
+        CellStyle titleStyle = workbook.createCellStyle();
+        Font titleFont = workbook.createFont();
+        titleFont.setBold(true);
+        titleFont.setFontHeightInPoints((short) 14);
+        titleStyle.setFont(titleFont);
+        titleStyle.setAlignment(HorizontalAlignment.CENTER);
+        titleCell.setCellStyle(titleStyle);
+
+        // Fusion du titre sur 10 colonnes
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 9));
+
+        // DATE d'exportation
+        Row dateRow = sheet.createRow(1);
+        Cell dateCell = dateRow.createCell(0);
+        dateCell.setCellValue("Date d’exportation : " + LocalDate.now());
+
+        CellStyle dateStyle = workbook.createCellStyle();
+        dateStyle.setAlignment(HorizontalAlignment.LEFT);
+        dateCell.setCellStyle(dateStyle);
+
+        // NOMBRE d'employés
+        Row countRow = sheet.createRow(2);
+        Cell countCell = countRow.createCell(0);
+        countCell.setCellValue("Nombre total d'employés : " + employees.size());
+
+        CellStyle countStyle = workbook.createCellStyle();
+        countStyle.setAlignment(HorizontalAlignment.LEFT);
+        countCell.setCellStyle(countStyle);
+
+        // Ligne vide
+        int rowNum = 4;
+
+        // En-tête du tableau
+        Row headerRow = sheet.createRow(rowNum++);
         String[] headers = {
-                "ID", "Matricule", "Nom", "Prenom", "Téléphone", "Email",
+                "Matricule", "Nom", "Prénom", "Téléphone", "Email",
                 "Adresse", "Date Naissance", "Date Embauche", "Service", "Poste"
         };
 
         CellStyle headerStyle = workbook.createCellStyle();
-        Font font = workbook.createFont();
-        font.setBold(true);
-        headerStyle.setFont(font);
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerStyle.setFont(headerFont);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        headerStyle.setWrapText(true);
 
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
@@ -126,31 +168,33 @@ public class ServiceEmployee implements IServiceEmploye{
             cell.setCellStyle(headerStyle);
         }
 
-        int rowNum = 1;
+        // Remplissage des données
         for (Employee e : employees) {
             Row row = sheet.createRow(rowNum++);
-
-            row.createCell(0).setCellValue(e.getId());
-            row.createCell(1).setCellValue(e.getMatricule());
-            row.createCell(2).setCellValue(e.getNom());
-            row.createCell(3).setCellValue(e.getPrenom());
-            row.createCell(4).setCellValue(e.getTelephone() != null ? e.getTelephone().toString() : "");
-            row.createCell(5).setCellValue(e.getEmail());
-            row.createCell(6).setCellValue(e.getAdresse());
-            row.createCell(7).setCellValue(e.getDateNaissance() != null ? e.getDateNaissance().toString() : "");
-            row.createCell(8).setCellValue(e.getDateEmbauche() != null ? e.getDateEmbauche().toString() : "");
-            row.createCell(9).setCellValue(e.getService());
-            row.createCell(10).setCellValue(e.getPost() != null ? e.getPost().getTitle() : "N/A");
+            row.createCell(0).setCellValue(e.getMatricule());
+            row.createCell(1).setCellValue(e.getNom());
+            row.createCell(2).setCellValue(e.getPrenom());
+            row.createCell(3).setCellValue(e.getTelephone());
+            row.createCell(4).setCellValue(e.getEmail());
+            row.createCell(5).setCellValue(e.getAdresse());
+            row.createCell(6).setCellValue(e.getDateNaissance() != null ? e.getDateNaissance().toString() : "");
+            row.createCell(7).setCellValue(e.getDateEmbauche() != null ? e.getDateEmbauche().toString() : "");
+            row.createCell(8).setCellValue(e.getService());
+            row.createCell(9).setCellValue(e.getPost() != null ? e.getPost().getTitle() : "N/A");
         }
 
+        // Ajustement automatique des colonnes
         for (int i = 0; i < headers.length; i++) {
             sheet.autoSizeColumn(i);
         }
 
+        // Configuration de la réponse HTTP
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=employees.xlsx");
 
         workbook.write(response.getOutputStream());
         workbook.close();
     }
+
+
 }

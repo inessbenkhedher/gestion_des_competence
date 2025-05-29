@@ -1,0 +1,110 @@
+<div class="breadcrumb">
+  <h1>Element</h1>
+  <ul>
+    <li>Table des éléments</li>
+  </ul>
+</div>
+<div class="separator-breadcrumb border-top"></div>
+
+<div class="container mt-4">
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>Liste des éléments de saisie</h3>
+  <button class="btn btn-success" (click)="exportExcel()">📤 Exporter Excel</button>
+</div>
+
+
+<div class="container mt-4">
+  <div class="row g-4 align-items-center p-3 " >
+    <!-- Filtrer par état -->
+    <div class="col-lg-3 col-md-4 col-sm-6">
+      <label class="form-label d-block mb-2 fw-semibold">Filtrer par état :</label>
+      <div class="btn-group" role="group">
+        <button class="btn btn-light" (click)="filterEtat(true)">🟢</button>
+        <button class="btn btn-light" (click)="filterEtat(false)">🔴</button>
+        <button class="btn btn-outline-secondary" (click)="clearEtatFilter()">❌</button>
+      </div>
+    </div>
+
+    <!-- Filtrer par performance -->
+    <div class="col-lg-4 col-md-6 col-sm-12">
+      <label class="form-label d-block mb-2 fw-semibold">Filtrer par performance :</label>
+      <div class="btn-group" role="group">
+        <button class="btn btn-outline-success" (click)="filterByPerformance('high')">Performants</button>
+        <button class="btn btn-outline-warning" (click)="filterByPerformance('medium')">Moyen et +</button>
+        <button class="btn btn-outline-danger" (click)="filterByPerformance('low')">Faibles</button>
+        <button class="btn btn-outline-secondary" (click)="clearPerformanceFilter()">❌</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <div class="col-md-12">
+    <div class="card o-hidden">
+  <ngx-datatable
+    [rows]="filteredSaisies"
+ style="height: 500px; box-shadow: none" class="material fullscreen"
+        [columnMode]="'force'" [headerHeight]="50" [footerHeight]="50" [rowHeight]="60" 
+        [scrollbarV]="true"
+    
+  >
+  <ngx-datatable-column name="État" [width]="100">
+ <ng-template let-row="row" ngx-datatable-cell-template>
+  <span *ngIf="row.etat === null">⏳</span>
+  <span *ngIf="row.etat === false">🔴</span>
+  <span *ngIf="row.etat === true">🟢</span>
+</ng-template>
+
+</ngx-datatable-column>
+    <ngx-datatable-column name="Code Barre" prop="codeBarre"></ngx-datatable-column>
+    <ngx-datatable-column name="Quantité" prop="quantite"></ngx-datatable-column>
+    <ngx-datatable-column name="Référence" prop="reference"></ngx-datatable-column>
+    <ngx-datatable-column name="Désignation" prop="designation"></ngx-datatable-column>
+    <ngx-datatable-column name="Opération" prop="operationCode"></ngx-datatable-column>
+    <ngx-datatable-column name="Temps" prop="temps"></ngx-datatable-column>
+    <ngx-datatable-column [width]="150" name="Actions">
+ <ngx-datatable-column [width]="150" name="Actions">
+  <ng-template let-row="row" ngx-datatable-cell-template>
+    <button
+      class="btn btn-info btn-sm"
+      (click)="openDetailModal(row, detailModal)"
+    >
+      Voir détails
+    </button>
+  </ng-template>
+</ngx-datatable-column>
+</ngx-datatable-column>
+  </ngx-datatable>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<ng-template #detailModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Détails de l'élément</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <table class="table table-bordered">
+      <tr><th>Etat</th><td>{{ selectedElement?.etat }}</td></tr>
+      <tr><th>Code Barre</th><td>{{ selectedElement?.codeBarre }}</td></tr>
+      <tr><th>Quantité</th><td>{{ selectedElement?.quantite }}</td></tr>
+      <tr><th>Référence</th><td>{{ selectedElement?.reference }}</td></tr>
+      <tr><th>Désignation</th><td>{{ selectedElement?.designation }}</td></tr>
+      <tr><th>Code Conception</th><td>{{ selectedElement?.codeConception }}</td></tr>
+      <tr><th>Opération</th><td>{{ selectedElement?.operationCode }}</td></tr>
+      <tr><th>Désignation Complémentaire</th><td>{{ selectedElement?.designationComplement }}</td></tr>
+      <tr><th>Code Section</th><td>{{ selectedElement?.codeParSection }}</td></tr>
+      <tr><th>Temps</th><td>{{ selectedElement?.temps }} heures</td></tr>
+      <tr><th>Client</th><td>{{ selectedElement?.clientDesignation }}</td></tr>
+      <tr><th>Employé</th><td>{{ employeeMatricule || 'Chargement...' }}</td></tr>
+      <tr><th>Compétence</th><td>{{ competenceCode || 'Chargement...' }}</td></tr>
+
+    </table>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.close()">Fermer</button>
+  </div>
+</ng-template>

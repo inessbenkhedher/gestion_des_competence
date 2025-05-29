@@ -10,15 +10,15 @@ import com.example.evaluation_service.Reoisitory.EvaluationRepository;
 import com.example.evaluation_service.Reoisitory.PostCompetenceRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -176,35 +176,74 @@ public class ServiceEvaluation implements IServiceEvaluation {
     }
 
     public void exportEvaluationByPost(Long postId, HttpServletResponse response) throws IOException {
-        // 🔹 Récupérer les compétences du poste
         List<PosteCompetence> posteCompetences = posteCompetenceRepository.findByPosteId(postId);
         List<Long> competenceIds = posteCompetences.stream().map(PosteCompetence::getCompetenceId).toList();
         List<Competence> competences = competenceIds.stream()
                 .map(competenceClient::getCompetenceById)
                 .toList();
 
-        // 🔹 Récupérer les employés ayant ce poste
+        // Récupérer les employés de ce poste
         List<Employee> employees = employeeClient.getAllEmployees().stream()
                 .filter(e -> e.getPost() != null && e.getPost().getId().equals(postId))
                 .toList();
 
-        // 🔹 Récupérer toutes les évaluations
+        // Récupérer les évaluations
         List<Evaluation> allEvaluations = er.findAll();
 
-        // 🔹 Création du fichier Excel
+        // 🔸 Création Excel
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Évaluations");
 
-        // 🔸 En-têtes
-        Row header = sheet.createRow(0);
+        // Style pour titres
+        CellStyle titleStyle = workbook.createCellStyle();
+        Font titleFont = workbook.createFont();
+        titleFont.setBold(true);
+        titleFont.setFontHeightInPoints((short) 14);
+        titleStyle.setFont(titleFont);
+        titleStyle.setAlignment(HorizontalAlignment.CENTER);
+
+        // 🔹 Titre principal
+        Row titleRow = sheet.createRow(0);
+        Cell titleCell = titleRow.createCell(0);
+        titleCell.setCellValue("Évaluations des employés du poste");
+        titleCell.setCellStyle(titleStyle);
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, competences.size() + 1)); // fusion sur toutes les colonnes
+
+        // 🔹 Nom du poste (ligne 1)
+        Row postRow = sheet.createRow(1);
+        Cell postCell = postRow.createCell(0);
+        String postName = employees.isEmpty() || employees.get(0).getPost() == null ? "N/A" : employees.get(0).getPost().getTitle();
+        postCell.setCellValue("Poste : " + postName);
+        sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, competences.size() + 1));
+
+        // 🔹 Date d’exportation (ligne 2)
+        Row dateRow = sheet.createRow(2);
+        Cell dateCell = dateRow.createCell(0);
+        dateCell.setCellValue("Date d’exportation : " + LocalDate.now());
+        sheet.addMergedRegion(new CellRangeAddress(2, 2, 0, competences.size() + 1));
+
+        // 🔹 Ligne vide (3)
+        sheet.createRow(3);
+
+        // 🔹 En-tête (ligne 4)
+        Row header = sheet.createRow(4);
+        CellStyle headerStyle = workbook.createCellStyle();
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerStyle.setFont(headerFont);
+
         header.createCell(0).setCellValue("Matricule");
+        header.getCell(0).setCellStyle(headerStyle);
         header.createCell(1).setCellValue("Nom Complet");
+        header.getCell(1).setCellStyle(headerStyle);
         for (int i = 0; i < competences.size(); i++) {
-            header.createCell(i + 2).setCellValue(competences.get(i).getCode());
+            Cell cell = header.createCell(i + 2);
+            cell.setCellValue(competences.get(i).getCode());
+            cell.setCellStyle(headerStyle);
         }
 
-        // 🔸 Remplir lignes
-        int rowIndex = 1;
+        // 🔹 Remplissage des lignes
+        int rowIndex = 5;
         for (Employee emp : employees) {
             Row row = sheet.createRow(rowIndex++);
             row.createCell(0).setCellValue(emp.getMatricule());
@@ -213,7 +252,6 @@ public class ServiceEvaluation implements IServiceEvaluation {
             for (int i = 0; i < competences.size(); i++) {
                 Long compId = competences.get(i).getId();
 
-                // Chercher évaluation de cet employé pour cette compétence
                 Evaluation eval = allEvaluations.stream()
                         .filter(e -> e.getEmployeeId().equals(emp.getId()) && e.getCompetenceId().equals(compId))
                         .findFirst()
@@ -223,13 +261,15 @@ public class ServiceEvaluation implements IServiceEvaluation {
             }
         }
 
+        // 🔹 Auto-sizing des colonnes
         for (int i = 0; i < competences.size() + 2; i++) {
             sheet.autoSizeColumn(i);
         }
 
-        // 🔹 Config HTTP response
+        // 🔹 Export HTTP
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=evaluations_post_" + postId + ".xlsx");
+
         workbook.write(response.getOutputStream());
         workbook.close();
     }

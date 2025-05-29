@@ -74,7 +74,7 @@ export class NavigationService {
             sub: [
                 {
                     name: 'Analyse',
-                    state: '/analyse',
+                    state: '/analyse/charts',
                     type: 'link',
                     icon: 'i-Bar-Chart-5',
                 },
@@ -134,6 +134,21 @@ export class NavigationService {
                     state: '/service-evaluation/postCompetence',
                     type: 'link',
                     icon: 'i-Data-Settings',
+                }
+               
+            ]
+        },
+        {
+            name: 'Taches',
+            description: 'Gestion des taches',
+            type: 'dropDown',
+            icon: 'i-Receipt-3',
+            sub: [
+                {
+                    name: 'Taches',
+                    state: '/analyse/saisie',
+                    type: 'link',
+                    icon: 'i-Checked-User',
                 }
                
             ]

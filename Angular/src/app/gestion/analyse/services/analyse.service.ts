@@ -19,7 +19,7 @@ export class AnalyseService {
     getallEvaluations(): Observable<any>{
          return this.http.get(`${this.baseUrl}/evaluation`).pipe(
         catchError(error => {
-          console.error('❌ Error fetching employee:', error);
+          console.error('❌ Error fetching evaluation:', error);
           return throwError(() => new Error("Erreur lors du chargement des employee"));
         })
       );

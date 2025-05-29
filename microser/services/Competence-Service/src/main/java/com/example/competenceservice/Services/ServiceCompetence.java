@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ import org.apache.poi.ss.usermodel.*;
 
 import java.awt.*;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,17 +104,53 @@ public class ServiceCompetence implements IServiceCompetence{
         List<Competence> competences = cr.findAll();
 
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Competences");
+        Sheet sheet = workbook.createSheet("Compétences");
 
-        // Créer une ligne pour les en-têtes
-        Row headerRow = sheet.createRow(0);
-        String[] headers = {"Code", "Designation", "Observatin", "Indicateur"};
+        // Titre principal (centré et en gras)
+        Row titleRow = sheet.createRow(0);
+        Cell titleCell = titleRow.createCell(0);
+        titleCell.setCellValue("Liste des compétences");
 
-        // Définir le style pour l'en-tête
+        CellStyle titleStyle = workbook.createCellStyle();
+        Font titleFont = workbook.createFont();
+        titleFont.setBold(true);
+        titleFont.setFontHeightInPoints((short) 14);
+        titleStyle.setFont(titleFont);
+        titleStyle.setAlignment(HorizontalAlignment.CENTER);
+        titleCell.setCellStyle(titleStyle);
+
+        // Fusionner les cellules du titre (colonne 0 à 3)
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 3));
+
+        // Date d'exportation
+        Row dateRow = sheet.createRow(1);
+        Cell dateCell = dateRow.createCell(0);
+        dateCell.setCellValue("Date d’exportation : " + LocalDate.now());
+
+        CellStyle dateStyle = workbook.createCellStyle();
+        dateStyle.setAlignment(HorizontalAlignment.LEFT);
+        dateCell.setCellStyle(dateStyle);
+
+        // Nombre total
+        Row countRow = sheet.createRow(2);
+        Cell countCell = countRow.createCell(0);
+        countCell.setCellValue("Nombre total de compétences : " + competences.size());
+
+        CellStyle countStyle = workbook.createCellStyle();
+        countStyle.setAlignment(HorizontalAlignment.LEFT);
+        countCell.setCellStyle(countStyle);
+
+        // Ligne vide pour espacer
+        int rowNum = 4;
+
+        // En-tête du tableau
+        Row headerRow = sheet.createRow(rowNum++);
+        String[] headers = {"Code", "Désignation", "Observation", "Indicateur"};
+
         CellStyle headerStyle = workbook.createCellStyle();
-        Font font = workbook.createFont();
-        font.setBold(true);
-        headerStyle.setFont(font);
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerStyle.setFont(headerFont);
 
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
@@ -120,33 +158,30 @@ public class ServiceCompetence implements IServiceCompetence{
             cell.setCellStyle(headerStyle);
         }
 
-        // Remplir les données
-        int rowNum = 1;
+        // Remplissage des données
         for (Competence competence : competences) {
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(competence.getCode());
             row.createCell(1).setCellValue(competence.getDesignation());
             row.createCell(2).setCellValue(competence.getObservatin());
+
             Indicateur indicateur = competence.getIndicateur();
-            if (indicateur != null) {
-                row.createCell(3).setCellValue(indicateur.getTitle());
-            } else {
-                row.createCell(3).setCellValue("N/A"); // Handle case where Indicateur is null
-            }
+            row.createCell(3).setCellValue(indicateur != null ? indicateur.getTitle() : "N/A");
         }
 
-        // Ajuster automatiquement la taille des colonnes
+        // Auto-size des colonnes
         for (int i = 0; i < headers.length; i++) {
             sheet.autoSizeColumn(i);
         }
 
-        // Définir le type de contenu du fichier de réponse
+        // Configuration de la réponse HTTP
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=competences.xlsx");
 
         workbook.write(response.getOutputStream());
         workbook.close();
     }
+
 
     @Override
     public List<Competence> getCompetencesByIndicateurId(Long indicateurId) {
